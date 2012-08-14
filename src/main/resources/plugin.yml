@@ -1,0 +1,7 @@
+name: iSay
+version: MAVEN_VERSION
+main: com.thevoxelbox.isay.ISMain
+author: Patrick Anker
+depend: [libpsanker]
+softdepend: [VoxelGuest]
+  
