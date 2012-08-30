@@ -75,14 +75,7 @@ public class ISMain extends JavaPlugin {
             loadFactorySettings();
         }
         
-        commandManager = new CommandManager();
-        
-        if (LibraryPlugin.getConfigData().getBoolean("override-other-commands")) {
-            commandManager.registerCommands(ChannelCommands.class, ISMain.getInstance());
-            commandManager.registerCommands(GeneralCommands.class, ISMain.getInstance());
-            commandManager.registerCommands(MessagingCommands.class, ISMain.getInstance());
-            ISMain.log("Registered necessary dynamic commands");
-        }
+        commandManager = new CommandManager(this);
     }
 
     @Override
@@ -100,12 +93,10 @@ public class ISMain extends JavaPlugin {
         channelManager = new ChannelManager();
         pingManager = new PingManager();
         itemAliasManager = new ItemAliasManager();
-
-        if (!LibraryPlugin.getConfigData().getBoolean("override-other-commands")) {
-            commandManager.registerCommands(ChannelCommands.class, ISMain.getInstance());
-            commandManager.registerCommands(GeneralCommands.class, ISMain.getInstance());
-            commandManager.registerCommands(MessagingCommands.class, ISMain.getInstance());
-        }
+        
+        commandManager.registerCommands(ChannelCommands.class);
+        commandManager.registerCommands(GeneralCommands.class);
+        commandManager.registerCommands(MessagingCommands.class);
         
         Bukkit.getPluginManager().registerEvents(new PlayerListener(), this);
         Bukkit.getPluginManager().registerEvents(permsManager, this);
