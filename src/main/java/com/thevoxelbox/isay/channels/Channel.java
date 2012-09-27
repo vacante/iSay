@@ -65,11 +65,11 @@ public abstract class Channel {
         this.name = str;
     }
 
-    public abstract void connect(String paramString);
+    public abstract void connect(String player);
 
-    public abstract void dispatch(ChatPlayer paramChatPlayer, String paramString);
+    public abstract void dispatch(ChatPlayer player, String message);
 
-    public abstract void disconnect(String paramString);
+    public abstract void disconnect(String player);
 
     public abstract void load();
 

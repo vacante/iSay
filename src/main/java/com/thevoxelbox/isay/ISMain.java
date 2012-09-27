@@ -1,11 +1,11 @@
 package com.thevoxelbox.isay;
 
-import com.patrickanker.lib.bukkit.LibraryPlugin;
 import com.patrickanker.lib.commands.*;
 import com.patrickanker.lib.config.PropertyConfiguration;
 import com.patrickanker.lib.logging.ConsoleLogger;
 import com.patrickanker.lib.permissions.PermissionsManager;
 import com.thevoxelbox.isay.channels.ChannelManager;
+import com.thevoxelbox.isay.commands.AdministrativeCommands;
 import com.thevoxelbox.isay.commands.ChannelCommands;
 import com.thevoxelbox.isay.commands.GeneralCommands;
 import com.thevoxelbox.isay.commands.MessagingCommands;
@@ -94,9 +94,12 @@ public class ISMain extends JavaPlugin {
         pingManager = new PingManager();
         itemAliasManager = new ItemAliasManager();
         
+        groupManager.load();
+        
         commandManager.registerCommands(ChannelCommands.class);
         commandManager.registerCommands(GeneralCommands.class);
         commandManager.registerCommands(MessagingCommands.class);
+        commandManager.registerCommands(AdministrativeCommands.class);
         
         Bukkit.getPluginManager().registerEvents(new PlayerListener(), this);
         Bukkit.getPluginManager().registerEvents(permsManager, this);
@@ -228,17 +231,17 @@ public class ISMain extends JavaPlugin {
 
     public static String getDefaultBroadcastFormat()
     {
-        return "&f[&cBroadcast&f] &a$m";
+        return defaultBroadcastFormat;
     }
 
     public static String getDefaultConsoleFormat()
     {
-        return "&d[Server] $m";
+        return defaultConsoleFormat;
     }
 
     public static String getDefaultMessageFormat()
     {
-        return "$id $m";
+        return defaultMessageFormat;
     }
 
     private void loadFactorySettings()

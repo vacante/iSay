@@ -14,8 +14,8 @@ public class GroupManager {
     private final String defaultGroupName = "Group";
     private final String defaultGroupFormat = "&f$name:";
     private final PropertyConfiguration defaultConfig = new PropertyConfiguration("Group", "/iSay/groups");
-
-    public GroupManager()
+    
+    public void load()
     {
         File dir = new File("plugins/iSay/groups/");
 

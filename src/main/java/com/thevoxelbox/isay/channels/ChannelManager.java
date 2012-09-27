@@ -94,6 +94,13 @@ public class ChannelManager {
         }
         return ret;
     }
+    
+    public void reloadChannels()
+    {
+        for (Map.Entry<Channel, Boolean> entry : channels.entrySet()) {
+            entry.getKey().load();
+        }
+    }
 
     public ChannelManager()
     {
