@@ -15,12 +15,15 @@ package com.thevoxelbox.isay.commands;
 import com.patrickanker.lib.commands.Command;
 import com.patrickanker.lib.commands.CommandPermission;
 import com.thevoxelbox.isay.ISMain;
+import com.thevoxelbox.isay.Statistician;
+import com.thevoxelbox.isay.channels.ChatChannel;
 import org.bukkit.command.CommandSender;
 
 
 public class AdministrativeCommands {
     
     private static final String ADMIN_PERMISSION = "system.admin";
+    private static final String LOGO = "§b§oi§rSay";
     
     @Command(aliases={"isay"},
             bounds={1, -1},
@@ -33,7 +36,7 @@ public class AdministrativeCommands {
     {
         if (args[0].equalsIgnoreCase("reload")) {
             reloadConfig();
-            cs.sendMessage("§bi§fSay §7reloaded");
+            cs.sendMessage(LOGO + " §7reloaded");
         } else if (args[0].equalsIgnoreCase("info")) {
             if (args.length == 1) {
                 info(cs, null);
@@ -63,7 +66,22 @@ public class AdministrativeCommands {
     public void info(CommandSender cs, String name, boolean player)
     {
         if (name == null) {
+            cs.sendMessage("§8====================");
+            cs.sendMessage(LOGO + " §7version §a" + ISMain.getInstance().getDescription().getVersion());
+            cs.sendMessage("§8");
+            cs.sendMessage("§7Channels§f: §a" + ISMain.getChannelManager().getList().size());
+            cs.sendMessage("§7Total messages in session§f: §a" + Statistician.getStats().fetchInt(ChatChannel.STATS_CURRENT_MESSAGE_COUNT));
             
+            int mpm = Statistician.getStats().fetchInt(ChatChannel.STATS_MPM);
+            
+            if (mpm == -1) {
+                cs.sendMessage("§7MPM§f: §cServer has not been running long enough to calculate MPM");
+            } else {
+                cs.sendMessage("§7MPM§f: §a" + mpm);
+            }
+            
+            cs.sendMessage("§8====================");
+            return;
         }
     }
 }

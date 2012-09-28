@@ -6,14 +6,18 @@ import com.patrickanker.lib.util.JavaPropertiesFileManager;
 import com.thevoxelbox.isay.ChatPlayer;
 import com.thevoxelbox.isay.ISMain;
 import com.thevoxelbox.isay.MessageFormattingServices;
+import com.thevoxelbox.isay.Statistician;
 import com.thevoxelbox.isay.formatters.GhostMessageFormatter;
 import com.thevoxelbox.isay.formatters.MessageFormatter;
 import com.thevoxelbox.voxelguest.AsshatMitigationModule;
 import com.thevoxelbox.voxelguest.modules.ModuleManager;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 public class ChatChannel extends Channel {
@@ -24,6 +28,12 @@ public class ChatChannel extends Channel {
     protected Boolean locked = Boolean.FALSE;
     protected String ghostformat = "&8[&f" + this.name + "&8] $group&f $message";
     protected String password = "";
+    protected Boolean verbose = Boolean.TRUE;
+    
+    public static final String STATS_LAST_TIME = "chatchannel-message-last-time";
+    public static final String STATS_LAST_MESSAGE_COUNT = "chatchannel-message-last-message-count";
+    public static final String STATS_CURRENT_MESSAGE_COUNT = "chatchannel-message-current-message-count";
+    public static final String STATS_MPM = "chatchannel-message-mps";
 
     public ChatChannel(String name)
     {
@@ -46,7 +56,7 @@ public class ChatChannel extends Channel {
             for (Map.Entry l : this.listeners.entrySet()) {
                 Player pl = Bukkit.getPlayer((String) l.getKey());
 
-                if (((Boolean) l.getValue()).booleanValue()) {
+                if (((Boolean) l.getValue()).booleanValue() && verbose) {
                     pl.sendMessage(ChatColor.GREEN + player + ChatColor.GRAY + " has joined " + ChatColor.GREEN + this.name + ChatColor.DARK_GRAY + ".");
                 }
             }
@@ -74,6 +84,8 @@ public class ChatChannel extends Channel {
     @Override
     public void dispatch(ChatPlayer cp, String message)
     {
+        List<String> oldListeners = new LinkedList<String>();
+        
         String copy = message;
         
         if (MessageFormattingServices.containsURLs(message)) {
@@ -90,12 +102,19 @@ public class ChatChannel extends Channel {
                 cp.sendMessage("§cYou are gagged. You cannot chat.");
                 return;
             }
-        } catch (Exception ex) {
+        } catch (Throwable t) {
             // Continue -- Either Guest is not loaded or Asshat Mitigation is turned off
         }
 
         for (Map.Entry l : this.listeners.entrySet()) {
-            Player pl = Bukkit.getPlayer((String) l.getKey());
+            OfflinePlayer op = Bukkit.getOfflinePlayer((String) l.getKey());
+            
+            if (!op.isOnline()) {
+                oldListeners.add(op.getName());
+                continue;
+            }
+            
+            Player pl = op.getPlayer();
             ChatPlayer _cp = ISMain.getRegisteredPlayer(pl);
 
             ChatPlayer[] pingees = ISMain.getPingManager().getPingeesFromString(message);
@@ -104,11 +123,6 @@ public class ChatChannel extends Channel {
                 if (ISMain.getPingManager().canPing(cp, pingee)) {
                     ISMain.getPingManager().doPing(cp, pingee);
                 }
-            }
-
-            if (pl == null) {
-                removeListener((String) l.getKey());
-                continue;
             }
 
             if ((_cp.isIgnoring(cp)) || ((ISMain.getRegisteredPlayer(pl).isMuted()) && (!isHelpOp()))) {
@@ -124,6 +138,38 @@ public class ChatChannel extends Channel {
             }
         }
         
+        for (String listener : oldListeners) {
+            removeListener(listener);
+        }
+        
+        // -- Stats --
+        
+        Statistician stats = Statistician.getStats();
+        
+        int count = stats.fetchInt(STATS_CURRENT_MESSAGE_COUNT);
+        count += 1;
+        
+        if (count == 0)
+            count = 1;
+        
+        if (stats.fetchInt(STATS_LAST_MESSAGE_COUNT) == -1) {
+            stats.updateInt(STATS_LAST_MESSAGE_COUNT, count);
+            stats.updateInt(STATS_CURRENT_MESSAGE_COUNT, count);
+            stats.updateLong(STATS_LAST_TIME, System.currentTimeMillis());
+        } else {
+        
+            if ((System.currentTimeMillis() - Statistician.getStats().fetchLong(STATS_LAST_TIME)) > 60000) {
+                double dm = (count - stats.fetchInt(STATS_LAST_MESSAGE_COUNT)) / (System.currentTimeMillis() - Statistician.getStats().fetchLong(STATS_LAST_TIME));
+                int mean = (int) dm;
+                stats.updateInt(STATS_MPM, mean);
+                
+                stats.updateLong(STATS_LAST_TIME, System.currentTimeMillis());
+                stats.updateInt(STATS_LAST_MESSAGE_COUNT, count);
+            } else {
+                stats.updateInt(STATS_CURRENT_MESSAGE_COUNT, count);
+            }
+        }
+        
         ConsoleLogger.getLogger("iSay").log(Formatter.stripColors(getName() + "-> " + cp.getPlayer().getName() + ": " + message));
     }
 
@@ -134,7 +180,7 @@ public class ChatChannel extends Channel {
             for (Map.Entry l : this.listeners.entrySet()) {
                 Player pl = Bukkit.getPlayer((String) l.getKey());
 
-                if (((Boolean) l.getValue()).booleanValue()) {
+                if (((Boolean) l.getValue()).booleanValue() && verbose) {
                     pl.sendMessage(ChatColor.GREEN + player + ChatColor.GRAY + " has left " + ChatColor.GREEN + this.name + ChatColor.DARK_GRAY + ".");
                 }
             }
@@ -159,19 +205,26 @@ public class ChatChannel extends Channel {
             if (data.containsKey("default")) {
                 this.def = ((Boolean) data.get("default"));
             }
+            
             if (data.containsKey("enabled")) {
                 this.enabled = ((Boolean) data.get("enabled"));
             }
+            
             if (data.containsKey("helpop")) {
                 this.helpop = ((Boolean) data.get("helpop"));
             }
             if (data.containsKey("locked")) {
                 this.locked = ((Boolean) data.get("locked"));
             }
+            
+            if (data.containsKey("verbose")) {
+                this.verbose = ((Boolean) data.get("verbose"));
+            }
 
             if (data.containsKey("ghostformat")) {
                 this.ghostformat = data.get("ghostformat").toString();
             }
+            
             if (data.containsKey("password")) {
                 this.password = data.get("password").toString();
             }
@@ -187,6 +240,7 @@ public class ChatChannel extends Channel {
         data.put("enabled", this.enabled);
         data.put("helpop", this.helpop);
         data.put("locked", this.locked);
+        data.put("verbose", this.verbose);
 
         data.put("ghostformat", this.ghostformat);
         data.put("password", this.password);
