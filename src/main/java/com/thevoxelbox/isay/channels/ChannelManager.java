@@ -2,8 +2,10 @@ package com.thevoxelbox.isay.channels;
 
 import com.thevoxelbox.isay.ChatPlayer;
 import com.thevoxelbox.isay.ISMain;
+import com.thevoxelbox.isay.Statistician;
 import java.io.File;
 import java.util.*;
+import org.bukkit.Bukkit;
 
 public class ChannelManager {
 
@@ -154,6 +156,8 @@ public class ChannelManager {
                 this.helpop = ((Channel) l.get(0));
             }
         }
+        
+        Bukkit.getScheduler().scheduleAsyncRepeatingTask(ISMain.getInstance(), new MPMThread(), 0L, 1200L);
     }
 
     public void shutDown()
@@ -265,6 +269,29 @@ public class ChannelManager {
             if (f.exists()) {
                 f.delete();
             }
+        }
+    }
+    
+    class MPMThread implements Runnable {
+
+        private int lastCount = 0;
+        
+        @Override
+        public void run()
+        {
+            Statistician stats = Statistician.getStats();
+            
+            int count = stats.fetchInt(ChatChannel.STATS_CURRENT_MESSAGE_COUNT);
+            
+            if (lastCount == 0) {
+                lastCount = count;
+                return;
+            }
+            
+            int diff = count - lastCount;
+            stats.updateInt(ChatChannel.STATS_MPM, diff);
+            
+            lastCount = count;
         }
     }
 }

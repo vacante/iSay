@@ -26,12 +26,10 @@ public class ChatChannel extends Channel {
     protected Boolean enabled = Boolean.TRUE;
     protected Boolean helpop = Boolean.FALSE;
     protected Boolean locked = Boolean.FALSE;
+    protected Boolean verbose = Boolean.TRUE;
     protected String ghostformat = "&8[&f" + this.name + "&8] $group&f $message";
     protected String password = "";
-    protected Boolean verbose = Boolean.TRUE;
     
-    public static final String STATS_LAST_TIME = "chatchannel-message-last-time";
-    public static final String STATS_LAST_MESSAGE_COUNT = "chatchannel-message-last-message-count";
     public static final String STATS_CURRENT_MESSAGE_COUNT = "chatchannel-message-current-message-count";
     public static final String STATS_MPM = "chatchannel-message-mps";
 
@@ -149,26 +147,11 @@ public class ChatChannel extends Channel {
         int count = stats.fetchInt(STATS_CURRENT_MESSAGE_COUNT);
         count += 1;
         
-        if (count == 0)
+        if (count == 0) {
             count = 1;
-        
-        if (stats.fetchInt(STATS_LAST_MESSAGE_COUNT) == -1) {
-            stats.updateInt(STATS_LAST_MESSAGE_COUNT, count);
-            stats.updateInt(STATS_CURRENT_MESSAGE_COUNT, count);
-            stats.updateLong(STATS_LAST_TIME, System.currentTimeMillis());
-        } else {
-        
-            if ((System.currentTimeMillis() - Statistician.getStats().fetchLong(STATS_LAST_TIME)) > 60000) {
-                double dm = (count - stats.fetchInt(STATS_LAST_MESSAGE_COUNT)) / (System.currentTimeMillis() - Statistician.getStats().fetchLong(STATS_LAST_TIME));
-                int mean = (int) dm;
-                stats.updateInt(STATS_MPM, mean);
-                
-                stats.updateLong(STATS_LAST_TIME, System.currentTimeMillis());
-                stats.updateInt(STATS_LAST_MESSAGE_COUNT, count);
-            } else {
-                stats.updateInt(STATS_CURRENT_MESSAGE_COUNT, count);
-            }
         }
+        
+        stats.updateInt(STATS_CURRENT_MESSAGE_COUNT, count);
         
         ConsoleLogger.getLogger("iSay").log(Formatter.stripColors(getName() + "-> " + cp.getPlayer().getName() + ": " + message));
     }
@@ -267,6 +250,11 @@ public class ChatChannel extends Channel {
     {
         this.locked = Boolean.valueOf(bool);
     }
+    
+    public void setVerbose(boolean bool)
+    {
+        this.verbose = Boolean.valueOf(bool);
+    }
 
     public void setGhostFormat(String str)
     {
@@ -297,6 +285,11 @@ public class ChatChannel extends Channel {
     {
         return this.locked.booleanValue();
     }
+    
+    public boolean isVerbose()
+    {
+        return this.verbose.booleanValue();
+    }
 
     public String getGhostFormat()
     {
@@ -306,5 +299,23 @@ public class ChatChannel extends Channel {
     public String getPassword()
     {
         return this.password;
+    }
+    
+    public List<String> getListenerList()
+    {
+        List<String> l = new LinkedList<String>();
+        
+        for (Map.Entry<String, Boolean> entry : listeners.entrySet()) {
+            if (!l.contains(entry.getKey()))
+                l.add(entry.getKey());
+        }
+        
+        return l;
+    }
+    
+    public HashMap<String, Boolean> getListenerMap()
+    {
+        HashMap<String, Boolean> map = listeners;
+        return map;
     }
 }

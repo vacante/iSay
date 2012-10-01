@@ -69,4 +69,70 @@ public class Statistician {
         
         return -1;
     }
+    
+    public int sumInts(String... keys)
+    {
+        int i = 0;
+        
+        for (String key : keys) {
+            i += integerStorage.get(key);
+        }
+        
+        return i;
+    }
+    
+    public int productInts(String... keys)
+    {
+        int i = 1;
+        
+        for (String key : keys) {
+            i *= integerStorage.get(key);
+        }
+        
+        return i;
+    }
+    
+    public double sumDoubles(String... keys)
+    {
+        double i = 0;
+        
+        for (String key : keys) {
+            i += doubleStorage.get(key);
+        }
+        
+        return i;
+    }
+    
+    public double productDoubles(String... keys)
+    {
+        double i = 1;
+        
+        for (String key : keys) {
+            i *= doubleStorage.get(key);
+        }
+        
+        return i;
+    }
+    
+    public long sumLongs(String... keys)
+    {
+        long i = 0;
+        
+        for (String key : keys) {
+            i += longStorage.get(key);
+        }
+        
+        return i;
+    }
+    
+    public long productLongs(String... keys)
+    {
+        long i = 1;
+        
+        for (String key : keys) {
+            i *= longStorage.get(key);
+        }
+        
+        return i;
+    }
 }

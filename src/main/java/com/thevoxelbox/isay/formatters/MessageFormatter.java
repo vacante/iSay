@@ -26,12 +26,24 @@ public class MessageFormatter extends Formatter {
             groupIdFormat = "$name:";
         }
 
-        idFormat = idFormat.replace("$name", cp.getPlayer().getName());
-        idFormat = idFormat.replace("$n", cp.getPlayer().getName());
+        if (cp.getNameAlias() != null) {
+            idFormat = idFormat.replace("$name", cp.getNameAlias());
+            idFormat = idFormat.replace("$n", cp.getNameAlias());
+        } else {
+            idFormat = idFormat.replace("$name", cp.getPlayer().getName());
+            idFormat = idFormat.replace("$n", cp.getPlayer().getName());
+        }
+        
         idFormat = Formatter.encodeColors(idFormat);
 
-        groupIdFormat = groupIdFormat.replace("$name", cp.getPlayer().getName());
-        groupIdFormat = groupIdFormat.replace("$n", cp.getPlayer().getName());
+        if (cp.getNameAlias() != null) {
+            groupIdFormat = groupIdFormat.replace("$name", cp.getNameAlias());
+            groupIdFormat = groupIdFormat.replace("$n", cp.getNameAlias());
+        } else {
+            groupIdFormat = groupIdFormat.replace("$name", cp.getPlayer().getName());
+            groupIdFormat = groupIdFormat.replace("$n", cp.getPlayer().getName());
+        }
+        
         groupIdFormat = Formatter.encodeColors(groupIdFormat);
 
         master = master.replace("$id", idFormat);
@@ -41,9 +53,15 @@ public class MessageFormatter extends Formatter {
         if (PermissionsManager.getHandler().hasPermission(cp.getPlayer().getWorld().getName(), cp.getPlayer().getName(), "isay.chat.color")) {
             in = Formatter.encodeColors(in);
         }
-        master = master.replace("&", "§");
-        master = master.replace("$name", cp.getPlayer().getName());
-        master = master.replace("$n", cp.getPlayer().getName());
+        master = Formatter.encodeColors(master);
+        
+        if (cp.getNameAlias() != null) {
+            master = master.replace("$name", cp.getNameAlias());
+            master = master.replace("$n", cp.getNameAlias());
+        } else {
+            master = master.replace("$name", cp.getPlayer().getName());
+            master = master.replace("$n", cp.getPlayer().getName());
+        }
 
         master = master.replace("$message", in);
         master = master.replace("$m", in);

@@ -177,10 +177,8 @@ public class ChannelCommands {
     {
         if ((cs instanceof Player)) {
             Player p = (Player) cs;
-            ChatPlayer cp = ISMain.getRegisteredPlayer(p);
 
             List<Channel> l = ISMain.getChannelManager().getList();
-            List<String> list = new ArrayList<String>();
             
             Iterator<Channel> it = l.listIterator();
             int i = 1;

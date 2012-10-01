@@ -13,6 +13,7 @@ public class ChatPlayer {
     private boolean adminMute = false;
     private String format = "$group";
     private String groupFormat = "$name:";
+    private String nameAlias = null;
     private boolean ping = true;
     private boolean joinAllAvailable = false;
     private boolean autoJoin = false;
@@ -43,12 +44,19 @@ public class ChatPlayer {
         if (ISMain.getPlayerConfig().contains(this.p.getName() + ".adminmute")) {
             this.adminMute = ISMain.getPlayerConfig().getBoolean(this.p.getName() + ".adminmute");
         }
+        
         if (ISMain.getPlayerConfig().contains(this.p.getName() + ".format")) {
             this.format = ISMain.getPlayerConfig().getString(this.p.getName() + ".format");
         }
+        
+        if (ISMain.getPlayerConfig().contains(this.p.getName() + ".namealias")) {
+            this.nameAlias = ISMain.getPlayerConfig().getString(this.p.getName() + ".namealias");
+        }
+        
         if (ISMain.getPlayerConfig().contains(this.p.getName() + ".joinallavailable")) {
             this.joinAllAvailable = ISMain.getPlayerConfig().getBoolean(this.p.getName() + ".joinallavailable", false);
         }
+        
         if ((ISMain.getPlayerConfig().contains(this.p.getName() + ".autojoinlistenable"))
                 && (ISMain.getPlayerConfig().getBoolean(this.p.getName() + ".autojoinlistenable", false)) && (!ISMain.getPlayerConfig().getStringList(".autojoinlist").isEmpty())) {
             List l = ISMain.getPlayerConfig().getStringList(this.p.getName() + ".autojoinlist");
@@ -69,6 +77,7 @@ public class ChatPlayer {
     public void save()
     {
         ISMain.getPlayerConfig().set(this.p.getName() + ".format", this.format);
+        ISMain.getPlayerConfig().set(this.p.getName() + ".namealias", this.nameAlias);
         ISMain.getPlayerConfig().set(this.p.getName() + ".adminmute", Boolean.valueOf(this.adminMute));
         ISMain.getPlayerConfig().set(this.p.getName() + ".ping", Boolean.valueOf(this.ping));
         ISMain.getPlayerConfig().set(this.p.getName() + ".joinallavailable", Boolean.valueOf(this.joinAllAvailable));
@@ -124,9 +133,21 @@ public class ChatPlayer {
         try {
             String ret = ISMain.getGroupManager().getGroupConfiguration(PermissionsManager.getHandler().getGroups(this.p.getName())[0]).getString("format");
             return ret;
-        } catch (NullPointerException ex) {
+        } catch (Throwable t) {
+            
         }
+        
         return this.groupFormat;
+    }
+    
+    public void setNameAlias(String str)
+    {
+        this.nameAlias = str;
+    }
+    
+    public String getNameAlias()
+    {
+        return nameAlias;
     }
 
     public boolean isAdminMuted()

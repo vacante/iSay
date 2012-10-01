@@ -64,19 +64,6 @@ public class ISMain extends JavaPlugin {
         groupManager.saveGroupConfigurations();
         config.save();
     }
-    
-    @Override
-    public void onLoad()
-    {
-        instance = this;
-        config.load();
-
-        if ((getConfigData().getString("reset") == null) || (getConfigData().getString("reset").equalsIgnoreCase("yes"))) {
-            loadFactorySettings();
-        }
-        
-        commandManager = new CommandManager(this);
-    }
 
     @Override
     public void onEnable()
@@ -88,6 +75,7 @@ public class ISMain extends JavaPlugin {
             loadFactorySettings();
         }
         
+        commandManager = new CommandManager(this);
         permsManager = new PermissionsManager(getServer(), "[iSay]", config);
         groupManager = new GroupManager();
         channelManager = new ChannelManager();

@@ -34,7 +34,7 @@ import java.util.regex.Pattern;
 
 public class MessageFormattingServices {
     
-    private static final String urlFormat = "((http|ftp|https)\\:\\/\\/)(w+?\\.)?([a-zA-Z0-9\\-\\._?%&=~#])+\\.([a-zA-Z]){2,4}(\\.([a-zA-Z]){2,2})?(\\:\\d)?(\\/[a-zA-Z0-9\\-\\.\\:_?%&=~#]*)*";
+    private static final String urlFormat = "((http|ftp|https)\\:\\/\\/)(w+?\\.)?([a-zA-Z0-9\\-\\._?%&=~#])+\\.([a-zA-Z]){2,4}(\\.([a-zA-Z]){2,2})?(\\:(\\d)+)?(\\/[a-zA-Z0-9\\-\\.\\:_?%&=~#]*)*";
     private static final String bitLyFormat = "(http|https)\\:\\/\\/(bit)\\.(ly)\\/[a-zA-Z0-9]{6}";
     
     // --- URL Services ---

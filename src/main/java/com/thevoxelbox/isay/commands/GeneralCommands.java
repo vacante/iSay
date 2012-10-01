@@ -121,6 +121,51 @@ public class GeneralCommands {
             }
         }
     }
+    
+    @Command(aliases={"alias"},
+            bounds={1, -1},
+            help="§c/alias -p <player> <alias> §fsets the display name of <player> to <alias>")
+    @CommandPermission("isay.general.alias")
+    public void alias(CommandSender cs, String[] args) 
+    {
+        if (args.length == 3 && args[0].equalsIgnoreCase("-p")) {
+            List<Player> l = Bukkit.matchPlayer(args[1]);
+            
+            if (l.isEmpty()) {
+                if (ISMain.getPlayerConfig().contains(args[1])) {
+                    ISMain.getPlayerConfig().set(args[1] + ".namealias", args[2]);
+                    cs.sendMessage("§7Aliased §a" + args[1] + "§7's name to §a" + args[2]);
+                    return;
+                }
+
+                cs.sendMessage("§cNo player found with that name.");
+            } else if (l.size() > 1) {
+                cs.sendMessage("§cMultiple players found with that name.");
+            } else {
+                ChatPlayer cp = ISMain.getRegisteredPlayer(l.get(0));
+                cp.setNameAlias(args[2]);
+                cs.sendMessage("§7Aliased §a" + cp.getPlayer().getName() + "§7's name to §a" + args[2]);
+            }
+        } else if (args.length == 2 && args[0].equalsIgnoreCase("-p")) {
+            List<Player> l = Bukkit.matchPlayer(args[1]);
+            
+            if (l.isEmpty()) {
+                if (ISMain.getPlayerConfig().contains(args[1])) {
+                    ISMain.getPlayerConfig().set(args[1] + ".namealias", null);
+                    cs.sendMessage("§7Reset §a" + args[1] + "§7's name");
+                    return;
+                }
+
+                cs.sendMessage("§cNo player found with that name.");
+            } else if (l.size() > 1) {
+                cs.sendMessage("§cMultiple players found with that name.");
+            } else {
+                ChatPlayer cp = ISMain.getRegisteredPlayer(l.get(0));
+                cp.setNameAlias(null);
+                cs.sendMessage("§7Reset §a" + cp.getPlayer().getName() + "§7's name");
+            }
+        }
+    }
 
     @Command(aliases = {"helpop", "/."}, 
             bounds = {1, -1}, 
