@@ -1,0 +1,35 @@
+name: iSay
+version: 1.0.0
+main: com.patrickanker.isay.ISMain
+author: Patrick Anker
+
+commands:
+  join:
+    aliases: []
+  leave:
+    aliases: []
+  ghost:
+    aliases: []
+  format:
+    aliases: [f]
+  helpop:
+    aliases: [/.]
+  cmute:
+    aliases: []
+  quickmessage:
+    aliases: [qm]
+  broadcast:
+    aliases: [bcast]
+  say:
+    aliases: []
+  listchannels:
+    aliases: [lc]
+  whisper:
+    aliases: [w, message, m, tell, t]
+  reply:
+    aliases: [r]
+  ignore:
+    aliases: []
+  unignore:
+    aliases: []
+  
