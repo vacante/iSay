@@ -4,11 +4,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <name>iSay</name>
-    <groupId>com.thevoxelbox</groupId>
+    <groupId>com.patrickanker</groupId>
     <artifactId>iSay</artifactId>
-    <version>1.1.3-Re6</version>
+    <version>0.1-Re1</version>
     <packaging>jar</packaging>
-    <url>http://voxelbox.github.com</url>
+    <url>http://github.com/psanker/iSay</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -22,7 +22,12 @@
         
         <repository>
             <id>libpsanker-releases</id>
-            <url>https://github.com/psanker/libpsanker/tree/master/releases</url>
+            <url>https://github.com/psanker/libpsanker/raw/master/releases</url>
+        </repository>
+        
+         <repository>
+            <id>Plugin Metrics</id>
+            <url>http://repo.mcstats.org/content/repositories/public</url>
         </repository>
         
     </repositories>
@@ -46,14 +51,6 @@
         </dependency>
         
         <!-- VG4 build 55 -->
-        <dependency>
-            <groupId>com.thevoxelbox</groupId>
-            <artifactId>VoxelGuest</artifactId>
-            <version>4.1.0-SNAPSHOT</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/lib/VoxelGuest.jar</systemPath>
-            <type>jar</type>
-        </dependency>
         
         <!-- bit.ly -->
         <dependency>
@@ -67,6 +64,14 @@
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
             <version>1.7.1</version>
+        </dependency>
+        
+        <!-- Metrics -->
+        <dependency>
+            <groupId>org.mcstats</groupId>
+            <artifactId>metrics-lite</artifactId>
+            <version>1.2-SNAPSHOT</version>
+            <scope>compile</scope>
         </dependency>
         
     </dependencies>
@@ -91,7 +96,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>com.thevoxelbox.isay.ISMain</mainClass>
+                            <mainClass>com.patrickanker.isay.ISMain</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
@@ -123,7 +128,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>1.4</version>
+                <version>1.6</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -131,11 +136,19 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
+                            <minimizeJar>true</minimizeJar>
                             <artifactSet>
                                 <includes>
                                     <include>com.rosaloves:bitlyj</include>
+                                    <include>org.mcstats:metrics-lite</include>
                                 </includes>
                             </artifactSet>
+                            <relocations>
+                                <relocation>
+                                    <pattern>org.mcstats.metrics-lite</pattern>
+                                    <shadedPattern>com.patrickanker.isay.libs.org.mcstats.metrics-lite</shadedPattern>
+                                </relocation>
+                            </relocations>
                         </configuration>
                     </execution>
                 </executions>

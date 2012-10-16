@@ -1,18 +1,21 @@
-package com.thevoxelbox.isay.channels;
+package com.patrickanker.isay.channels;
 
-import com.thevoxelbox.isay.ChatPlayer;
-import com.thevoxelbox.isay.ISMain;
-import com.thevoxelbox.isay.Statistician;
+import com.patrickanker.isay.ChatPlayer;
+import com.patrickanker.isay.ISMain;
+import com.patrickanker.isay.Statistician;
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.YamlConfiguration;
 
 public class ChannelManager {
 
-    public static HashMap<Channel, Boolean> channels = new HashMap();
-    public static List<Channel> PMs = new LinkedList();
+    protected static HashMap<Channel, Boolean> channels = new HashMap();
     protected Channel def = null;
     protected Channel helpop = null;
+    
+    private static final File configFile = new File("plugins/iSay/channels.yml");
 
     public void registerChannel(Channel channel)
     {
@@ -97,6 +100,24 @@ public class ChannelManager {
         return ret;
     }
     
+    public void saveChannels()
+    {
+        List<String> l = new LinkedList<String>();
+        
+        for (Map.Entry<Channel, Boolean> entry : channels.entrySet()) {
+            l.add(entry.getKey().getName());
+            entry.getKey().dump();
+        }
+        
+        ISMain.getChannelConfig().set("channels", l);
+        
+        try {
+            ISMain.getChannelConfig().save(configFile);
+        } catch (IOException ex) {
+            ISMain.log("Could not save channel config: " + ex.getMessage(), 2);
+        }
+    }
+    
     public void reloadChannels()
     {
         for (Map.Entry<Channel, Boolean> entry : channels.entrySet()) {
@@ -106,54 +127,45 @@ public class ChannelManager {
 
     public ChannelManager()
     {
-        File d = new File("plugins/iSay/channels/");
+        if (!configFile.exists()) {
+            try {
+                configFile.getParentFile().mkdirs();
+                configFile.createNewFile();
+                ISMain.log("No channel config found... Created new config & internally writing default channels");
+            } catch (IOException ex) {
+                ISMain.log("Could not create channel config file: " + ex.getMessage(), 2);
+            }
 
-        if (!d.exists()) {
-            d.mkdir();
-            ISMain.log("No channel directory found... Created new directory & internally writing default channels");
-
-            ChatChannel pub = new ChatChannel("public");
-            pub.setDefault(true);
-            pub.setGhostFormat("&8[&apublic&8] $group &7$message");
-            registerChannel(pub);
-            this.def = pub;
-
-            ChatChannel _helpop = new ChatChannel("HelpOp");
-            _helpop.setHelpOp(true);
-            _helpop.setGhostFormat("&4[&cHELPOP&4] &7$name&f:&d $message");
-            registerChannel(_helpop);
-            this.helpop = _helpop;
-        } else if (d.list().length == 0) {
-            ISMain.log("No channels found... Internally writing default channels");
-
-            ChatChannel pub = new ChatChannel("public");
-            pub.setDefault(true);
-            pub.setGhostFormat("&8[&apublic&8] $group &7$message");
-            registerChannel(pub);
-            this.def = pub;
-
-            ChatChannel _helpop = new ChatChannel("HelpOp");
-            _helpop.setHelpOp(true);
-            _helpop.setGhostFormat("&4[&cHELPOP&4] &7$name&f:&d $message");
-            registerChannel(_helpop);
-            this.helpop = _helpop;
+            writeDefaults();
         } else {
-            String[] strs = d.list();
-
-            for (String str : strs) {
-                if (str.contains(".properties")) {
-                    registerChannel(new ChatChannel(str.replace(".properties", "")));
+            YamlConfiguration channelConfig = ISMain.getChannelConfig();
+            
+            try {
+                channelConfig.load(configFile);
+            } catch (Throwable t) {
+                ISMain.log("Could not load channels: " + t.getMessage(), 2);
+                writeDefaults();
+            }
+            
+            List<String> _channelList = channelConfig.getStringList("channels");
+            
+            for (String _channel : _channelList) {
+                ChatChannel cc = new ChatChannel(_channel);
+                registerChannel(cc);
+            }
+            
+            for (Map.Entry<Channel, Boolean> entry : channels.entrySet()) {
+                if (((ChatChannel) entry.getKey()).isDefault()) {
+                    this.def = entry.getKey();
+                    break;
                 }
             }
             
-            List<Channel> l = matchChannel("default", Boolean.TRUE);
-            if ((l != null) && (l.size() == 1)) {
-                this.def = ((Channel) l.get(0));
-            }
-            
-            l = matchChannel("helpop", Boolean.TRUE);
-            if ((l != null) && (l.size() == 1)) {
-                this.helpop = ((Channel) l.get(0));
+            for (Map.Entry<Channel, Boolean> entry : channels.entrySet()) {
+                if (((ChatChannel) entry.getKey()).isHelpOp()) {
+                    this.helpop = entry.getKey();
+                    break;
+                }
             }
         }
         
@@ -162,12 +174,11 @@ public class ChannelManager {
 
     public void shutDown()
     {
-        for (Map.Entry entry : channels.entrySet()) {
-            ChatChannel c = (ChatChannel) entry.getKey();
-
-            c.dump();
-        }
-
+        saveChannels();
+        
+        for (Channel channel : getList())
+            channel.listeners.clear();
+        
         channels.clear();
     }
 
@@ -208,6 +219,23 @@ public class ChannelManager {
             }
         }
         return l;
+    }
+    
+    private void writeDefaults()
+    {
+        channels.clear();
+        
+        ChatChannel pub = new ChatChannel("Public");
+        pub.setDefault(true);
+        pub.setGhostFormat("&8[&aPublic&8] $group&8: &7$message");
+        registerChannel(pub);
+        this.def = pub;
+
+        ChatChannel _helpop = new ChatChannel("HelpOp");
+        _helpop.setHelpOp(true);
+        _helpop.setGhostFormat("&4[&cHELPOP&4] &7$name&f:&d $message");
+        registerChannel(_helpop);
+        this.helpop = _helpop;
     }
 
     public void onPlayerLogin(ChatPlayer cp)
@@ -256,19 +284,6 @@ public class ChannelManager {
         for (Map.Entry entry : getMap().entrySet()) {
             ChatChannel c = (ChatChannel) entry.getKey();
             c.silentDisconnect(cp.getPlayer().getName());
-        }
-    }
-
-    public void remove(Channel channel)
-    {
-        if ((channel instanceof ChatChannel)) {
-            ChatChannel c = (ChatChannel) channel;
-
-            File f = new File("plugins/iSay/channels/" + c.getName() + ".properties");
-
-            if (f.exists()) {
-                f.delete();
-            }
         }
     }
     

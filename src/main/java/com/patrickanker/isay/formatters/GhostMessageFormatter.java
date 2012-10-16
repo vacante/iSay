@@ -1,9 +1,9 @@
-package com.thevoxelbox.isay.formatters;
+package com.patrickanker.isay.formatters;
 
 import com.patrickanker.lib.permissions.PermissionsManager;
 import com.patrickanker.lib.util.Formatter;
-import com.thevoxelbox.isay.ChatPlayer;
-import com.thevoxelbox.isay.channels.ChatChannel;
+import com.patrickanker.isay.ChatPlayer;
+import com.patrickanker.isay.channels.ChatChannel;
 
 public class GhostMessageFormatter extends Formatter {
 

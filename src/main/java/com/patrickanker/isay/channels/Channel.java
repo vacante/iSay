@@ -1,7 +1,7 @@
-package com.thevoxelbox.isay.channels;
+package com.patrickanker.isay.channels;
 
-import com.thevoxelbox.isay.ChatPlayer;
-import com.thevoxelbox.isay.ISMain;
+import com.patrickanker.isay.ChatPlayer;
+import com.patrickanker.isay.ISMain;
 import java.util.HashMap;
 
 public abstract class Channel {

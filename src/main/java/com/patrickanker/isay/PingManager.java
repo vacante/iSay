@@ -1,4 +1,4 @@
-package com.thevoxelbox.isay;
+package com.patrickanker.isay;
 
 import com.patrickanker.lib.permissions.PermissionsManager;
 import java.util.ArrayList;

@@ -1,16 +1,14 @@
-package com.thevoxelbox.isay.commands;
+package com.patrickanker.isay.commands;
 
 import com.patrickanker.lib.commands.Command;
 import com.patrickanker.lib.commands.CommandPermission;
 import com.patrickanker.lib.logging.ConsoleLogger;
 import com.patrickanker.lib.util.Formatter;
-import com.thevoxelbox.isay.ChatPlayer;
-import com.thevoxelbox.isay.ISMain;
-import com.thevoxelbox.isay.formatters.ConsoleMessageFormatter;
-import com.thevoxelbox.isay.formatters.SingleLineBroadcastFormatter;
-import com.thevoxelbox.voxelguest.AsshatMitigationModule;
-import com.thevoxelbox.voxelguest.modules.ModuleException;
-import com.thevoxelbox.voxelguest.modules.ModuleManager;
+import com.patrickanker.isay.ChatPlayer;
+import com.patrickanker.isay.ISMain;
+import com.patrickanker.isay.MuteServices;
+import com.patrickanker.isay.formatters.ConsoleMessageFormatter;
+import com.patrickanker.isay.formatters.SingleLineBroadcastFormatter;
 import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -79,15 +77,10 @@ public class MessagingCommands {
     {
         Player p = (Player) cs;
         ChatPlayer cp = ISMain.getRegisteredPlayer(p);
-        try {
-            AsshatMitigationModule module = (AsshatMitigationModule) ModuleManager.getManager().getModule(AsshatMitigationModule.class);
-
-            if (module.gagged.contains(cp.getPlayer().getName())) {
-                cp.sendMessage("§cYou are gagged. You cannot whisper people.");
-                return;
-            }
-        } catch (NullPointerException ex) {
-        } catch (ModuleException ex) {
+        
+        if (cp.isMuted()) {
+            MuteServices.muteWarn(cp);
+            return;
         }
         
         List<Player> l = Bukkit.matchPlayer(args[0]);
@@ -136,17 +129,9 @@ public class MessagingCommands {
         Player p = (Player) cs;
         ChatPlayer cp = ISMain.getRegisteredPlayer(p);
         
-        try {
-            AsshatMitigationModule module = (AsshatMitigationModule) ModuleManager.getManager().getModule(AsshatMitigationModule.class);
-
-            if (module.gagged.contains(cp.getPlayer().getName())) {
-                cp.sendMessage("§cYou are gagged. You cannot whisper people.");
-                return;
-            }
-        } catch (NullPointerException ex) {
-            // Continue
-        } catch (ModuleException ex) {
-       
+        if (cp.isMuted()) {
+            MuteServices.muteWarn(cp);
+            return;
         }
         
         ChatPlayer converser = cp.getConverser();

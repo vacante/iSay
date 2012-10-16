@@ -1,9 +1,11 @@
-package com.thevoxelbox.isay.listeners;
+package com.patrickanker.isay.listeners;
 
-import com.thevoxelbox.isay.ChatPlayer;
-import com.thevoxelbox.isay.ISMain;
-import com.thevoxelbox.isay.channels.Channel;
-import com.thevoxelbox.isay.channels.ChatChannel;
+import com.patrickanker.isay.ChatPlayer;
+import com.patrickanker.isay.ISMain;
+import com.patrickanker.isay.MuteServices;
+import com.patrickanker.isay.channels.Channel;
+import com.patrickanker.isay.channels.ChatChannel;
+import java.text.SimpleDateFormat;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
@@ -20,7 +22,23 @@ public class PlayerListener implements Listener {
             return;
         }
 
+        // WorldEdit CUI call
         if (event.getMessage().startsWith("u00a7")) {
+            event.setCancelled(true);
+            return;
+        }
+        
+        ChatPlayer cp = ISMain.getRegisteredPlayer(event.getPlayer());
+        
+        if (cp.isMuted()) {
+            if (!ISMain.getConfigData().getString("mute-key-phrase").equals(event.getMessage())) {
+                MuteServices.muteWarn(cp);
+            } else {
+                cp.setMuted(false);
+                cp.setMuteTimeout("");
+                MuteServices.unmuteAnnounce(cp);
+            }
+            
             event.setCancelled(true);
             return;
         }
@@ -38,8 +56,6 @@ public class PlayerListener implements Listener {
         Channel channel = ISMain.getChannelManager().getFocus(event.getPlayer().getName());
 
         if (channel != null) {
-            ChatPlayer cp = ISMain.getRegisteredPlayer(event.getPlayer());
-
             ChatChannel cc = (ChatChannel) channel;
             cc.dispatch(cp, event.getMessage());
             event.setCancelled(true);

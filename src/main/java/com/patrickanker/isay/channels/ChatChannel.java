@@ -1,16 +1,13 @@
-package com.thevoxelbox.isay.channels;
+package com.patrickanker.isay.channels;
 
 import com.patrickanker.lib.logging.ConsoleLogger;
 import com.patrickanker.lib.util.Formatter;
-import com.patrickanker.lib.util.JavaPropertiesFileManager;
-import com.thevoxelbox.isay.ChatPlayer;
-import com.thevoxelbox.isay.ISMain;
-import com.thevoxelbox.isay.MessageFormattingServices;
-import com.thevoxelbox.isay.Statistician;
-import com.thevoxelbox.isay.formatters.GhostMessageFormatter;
-import com.thevoxelbox.isay.formatters.MessageFormatter;
-import com.thevoxelbox.voxelguest.AsshatMitigationModule;
-import com.thevoxelbox.voxelguest.modules.ModuleManager;
+import com.patrickanker.isay.ChatPlayer;
+import com.patrickanker.isay.ISMain;
+import com.patrickanker.isay.MessageFormattingServices;
+import com.patrickanker.isay.Statistician;
+import com.patrickanker.isay.formatters.GhostMessageFormatter;
+import com.patrickanker.isay.formatters.MessageFormatter;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -22,11 +19,11 @@ import org.bukkit.entity.Player;
 
 public class ChatChannel extends Channel {
 
-    protected Boolean def = Boolean.FALSE;
-    protected Boolean enabled = Boolean.TRUE;
-    protected Boolean helpop = Boolean.FALSE;
-    protected Boolean locked = Boolean.FALSE;
-    protected Boolean verbose = Boolean.TRUE;
+    protected boolean def = false;
+    protected boolean enabled = true;
+    protected boolean helpop = false;
+    protected boolean locked = false;
+    protected boolean verbose = true;
     protected String ghostformat = "&8[&f" + this.name + "&8] $group&f $message";
     protected String password = "";
     
@@ -92,17 +89,6 @@ public class ChatChannel extends Channel {
         
         String focus = Formatter.selectFormatter(MessageFormatter.class).formatMessage(copy, cp);
         String ghost = Formatter.selectFormatter(GhostMessageFormatter.class).formatMessage(copy, cp, this);
-        
-        try {
-            AsshatMitigationModule module = (AsshatMitigationModule) ModuleManager.getManager().getModule(AsshatMitigationModule.class);
-
-            if (module.gagged.contains(cp.getPlayer().getName())) {
-                cp.sendMessage("§cYou are gagged. You cannot chat.");
-                return;
-            }
-        } catch (Throwable t) {
-            // Continue -- Either Guest is not loaded or Asshat Mitigation is turned off
-        }
 
         for (Map.Entry l : this.listeners.entrySet()) {
             OfflinePlayer op = Bukkit.getOfflinePlayer((String) l.getKey());
@@ -181,54 +167,46 @@ public class ChatChannel extends Channel {
 
     @Override
     public void load()
-    {
-        HashMap<String, Object> data = (HashMap<String, Object>) JavaPropertiesFileManager.load(getName(), "/iSay/channels");
+    {   
+        if (ISMain.getChannelConfig().contains(this.name + ".default")) {
+            this.def = ISMain.getChannelConfig().getBoolean(this.name + ".default");
+        }
+        
+        if (ISMain.getChannelConfig().contains(this.name + ".enabled")) {
+            this.enabled = ISMain.getChannelConfig().getBoolean(this.name + ".enabled");
+        }
+        
+        if (ISMain.getChannelConfig().contains(this.name + ".helpop")) {
+            this.helpop = ISMain.getChannelConfig().getBoolean(this.name + ".helpop");
+        }
+        
+        if (ISMain.getChannelConfig().contains(this.name + ".locked")) {
+            this.locked = ISMain.getChannelConfig().getBoolean(this.name + ".locked");
+        }
+        
+        if (ISMain.getChannelConfig().contains(this.name + ".verbose")) {
+            this.verbose = ISMain.getChannelConfig().getBoolean(this.name + ".verbose");
+        }
+        
+        if (ISMain.getChannelConfig().contains(this.name + ".ghostformat")) {
+            this.ghostformat = ISMain.getChannelConfig().getString(this.name + ".ghostformat");
+        }
 
-        if (data != null) {
-            if (data.containsKey("default")) {
-                this.def = ((Boolean) data.get("default"));
-            }
-            
-            if (data.containsKey("enabled")) {
-                this.enabled = ((Boolean) data.get("enabled"));
-            }
-            
-            if (data.containsKey("helpop")) {
-                this.helpop = ((Boolean) data.get("helpop"));
-            }
-            if (data.containsKey("locked")) {
-                this.locked = ((Boolean) data.get("locked"));
-            }
-            
-            if (data.containsKey("verbose")) {
-                this.verbose = ((Boolean) data.get("verbose"));
-            }
-
-            if (data.containsKey("ghostformat")) {
-                this.ghostformat = data.get("ghostformat").toString();
-            }
-            
-            if (data.containsKey("password")) {
-                this.password = data.get("password").toString();
-            }
+        if (ISMain.getChannelConfig().contains(this.name + ".password")) {
+            this.password = ISMain.getChannelConfig().getString(this.name + ".password");
         }
     }
 
     @Override
     public void dump()
     {
-        HashMap<String, Object> data = new HashMap<String, Object>();
-
-        data.put("default", this.def);
-        data.put("enabled", this.enabled);
-        data.put("helpop", this.helpop);
-        data.put("locked", this.locked);
-        data.put("verbose", this.verbose);
-
-        data.put("ghostformat", this.ghostformat);
-        data.put("password", this.password);
-
-        JavaPropertiesFileManager.save(getName(), data, "/iSay/channels");
+        ISMain.getChannelConfig().set(this.name + ".default", this.def);
+        ISMain.getChannelConfig().set(this.name + ".enabled", this.enabled);
+        ISMain.getChannelConfig().set(this.name + ".helpop", this.helpop);
+        ISMain.getChannelConfig().set(this.name + ".locked", this.locked);
+        ISMain.getChannelConfig().set(this.name + ".verbose", this.verbose);
+        ISMain.getChannelConfig().set(this.name + ".ghostformat", this.ghostformat);
+        ISMain.getChannelConfig().set(this.name + ".password", this.password);
     }
 
     public void setDefault(boolean bool)
@@ -268,27 +246,27 @@ public class ChatChannel extends Channel {
 
     public boolean isDefault()
     {
-        return this.def.booleanValue();
+        return this.def;
     }
 
     public boolean isEnabled()
     {
-        return this.enabled.booleanValue();
+        return this.enabled;
     }
 
     public boolean isHelpOp()
     {
-        return this.helpop.booleanValue();
+        return this.helpop;
     }
 
     public boolean isLocked()
     {
-        return this.locked.booleanValue();
+        return this.locked;
     }
     
     public boolean isVerbose()
     {
-        return this.verbose.booleanValue();
+        return this.verbose;
     }
 
     public String getGhostFormat()

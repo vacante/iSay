@@ -1,4 +1,4 @@
-package com.thevoxelbox.isay;
+package com.patrickanker.isay;
 
 public class GroupNotFoundException extends Exception {
 

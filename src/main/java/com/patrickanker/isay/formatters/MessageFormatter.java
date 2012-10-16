@@ -1,9 +1,9 @@
-package com.thevoxelbox.isay.formatters;
+package com.patrickanker.isay.formatters;
 
 import com.patrickanker.lib.permissions.PermissionsManager;
 import com.patrickanker.lib.util.Formatter;
-import com.thevoxelbox.isay.ChatPlayer;
-import com.thevoxelbox.isay.ISMain;
+import com.patrickanker.isay.ChatPlayer;
+import com.patrickanker.isay.ISMain;
 
 public class MessageFormatter extends Formatter {
 

@@ -1,15 +1,12 @@
-package com.thevoxelbox.isay;
+package com.patrickanker.isay;
 
 import com.patrickanker.lib.commands.*;
 import com.patrickanker.lib.config.PropertyConfiguration;
 import com.patrickanker.lib.logging.ConsoleLogger;
 import com.patrickanker.lib.permissions.PermissionsManager;
-import com.thevoxelbox.isay.channels.ChannelManager;
-import com.thevoxelbox.isay.commands.AdministrativeCommands;
-import com.thevoxelbox.isay.commands.ChannelCommands;
-import com.thevoxelbox.isay.commands.GeneralCommands;
-import com.thevoxelbox.isay.commands.MessagingCommands;
-import com.thevoxelbox.isay.listeners.PlayerListener;
+import com.patrickanker.isay.channels.ChannelManager;
+import com.patrickanker.isay.commands.*;
+import com.patrickanker.isay.listeners.PlayerListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -23,6 +20,7 @@ import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.mcstats.MetricsLite;
 
 public class ISMain extends JavaPlugin {
 
@@ -35,6 +33,7 @@ public class ISMain extends JavaPlugin {
     protected static ItemAliasManager itemAliasManager;
     protected static PropertyConfiguration config = new PropertyConfiguration("/iSay/iSay");
     protected static YamlConfiguration playerConfig = new YamlConfiguration();
+    protected static YamlConfiguration channelConfig = new YamlConfiguration();
     private static List<ChatPlayer> registeredPlayers = new ArrayList();
     private static final String defaultMessageFormat = "$id $m";
     private static final String defaultBroadcastFormat = "&f[&cBroadcast&f] &a$m";
@@ -88,6 +87,7 @@ public class ISMain extends JavaPlugin {
         commandManager.registerCommands(GeneralCommands.class);
         commandManager.registerCommands(MessagingCommands.class);
         commandManager.registerCommands(AdministrativeCommands.class);
+        commandManager.registerCommands(ModerationCommands.class);
         
         Bukkit.getPluginManager().registerEvents(new PlayerListener(), this);
         Bukkit.getPluginManager().registerEvents(permsManager, this);
@@ -95,7 +95,14 @@ public class ISMain extends JavaPlugin {
         permsManager.registerActiveHandler();
         
         try {
-            playerConfig.load(new File("plugins/iSay/players.yml"));
+            File _players = new File("plugins/iSay/players.yml");
+            
+            if (!_players.exists()) {
+                _players.getParentFile().mkdirs();
+                _players.createNewFile();
+            }
+            
+            playerConfig.load(_players);
         } catch (FileNotFoundException ex) {
             log("Could not load player data", 2);
         } catch (IOException ex) {
@@ -107,6 +114,18 @@ public class ISMain extends JavaPlugin {
         for (Player p : Bukkit.getOnlinePlayers()) {
             ChatPlayer foo = registerPlayer(p);
             channelManager.onPlayerLogin(foo);
+        }
+        
+        // Init Metrics
+        
+        try {
+            MetricsLite metrics = new MetricsLite(this);
+            
+            if (!metrics.isOptOut()) {
+                metrics.start();
+            }
+        } catch (Throwable t) {
+            ISMain.log("Could not send statistics to Metrics", 1);
         }
     }
 
@@ -129,6 +148,11 @@ public class ISMain extends JavaPlugin {
     public static YamlConfiguration getPlayerConfig()
     {
         return playerConfig;
+    }
+    
+    public static YamlConfiguration getChannelConfig()
+    {
+        return channelConfig;
     }
 
     public static ISMain getInstance()

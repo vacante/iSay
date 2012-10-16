@@ -1,15 +1,15 @@
-package com.thevoxelbox.isay.commands;
+package com.patrickanker.isay.commands;
 
 import com.patrickanker.lib.commands.Command;
 import com.patrickanker.lib.commands.CommandPermission;
 import com.patrickanker.lib.commands.Subcommands;
 import com.patrickanker.lib.permissions.PermissionsManager;
 import com.patrickanker.lib.util.Formatter;
-import com.thevoxelbox.isay.ChatPlayer;
-import com.thevoxelbox.isay.ISMain;
-import com.thevoxelbox.isay.channels.Channel;
-import com.thevoxelbox.isay.channels.ChatChannel;
-import com.thevoxelbox.isay.formatters.MessageFormatter;
+import com.patrickanker.isay.ChatPlayer;
+import com.patrickanker.isay.ISMain;
+import com.patrickanker.isay.channels.Channel;
+import com.patrickanker.isay.channels.ChatChannel;
+import com.patrickanker.isay.formatters.MessageFormatter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;

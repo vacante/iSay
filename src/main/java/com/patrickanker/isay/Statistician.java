@@ -10,7 +10,7 @@
  *
  */
 
-package com.thevoxelbox.isay;
+package com.patrickanker.isay;
 
 import java.util.HashMap;
 

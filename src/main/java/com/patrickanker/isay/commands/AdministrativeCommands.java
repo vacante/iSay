@@ -10,14 +10,13 @@
  *
  */
 
-package com.thevoxelbox.isay.commands;
+package com.patrickanker.isay.commands;
 
+import com.patrickanker.isay.*;
 import com.patrickanker.lib.commands.Command;
 import com.patrickanker.lib.commands.CommandPermission;
-import com.thevoxelbox.isay.ISMain;
-import com.thevoxelbox.isay.Statistician;
-import com.thevoxelbox.isay.channels.Channel;
-import com.thevoxelbox.isay.channels.ChatChannel;
+import com.patrickanker.isay.channels.Channel;
+import com.patrickanker.isay.channels.ChatChannel;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
@@ -41,15 +40,18 @@ public class AdministrativeCommands {
     {
         if (args[0].equalsIgnoreCase("reload")) {
             reloadConfig();
-            cs.sendMessage(LOGO + " §7reloaded");
+            cs.sendMessage(LOGO + " §7reloaded.");
         } else if (args[0].equalsIgnoreCase("info")) {
             if (args.length == 1) {
                 info(cs, null);
             } else if (args.length == 3 && args[1].equalsIgnoreCase("-c")) {
                 info(cs, args[2], false);
             } else if (args.length == 4 && args[1].equalsIgnoreCase("-c") && (args[3].equalsIgnoreCase("-l") || args[3].equalsIgnoreCase("listeners"))) {
-                listeners(cs, args[2]);
+                showChannelListeners(cs, args[2]);
             }
+        } else if (args[0].equalsIgnoreCase("save")) {
+            saveConfig();
+            cs.sendMessage(LOGO + " §7saved.");
         }
     }
     
@@ -65,6 +67,20 @@ public class AdministrativeCommands {
         
         ISMain.getGroupManager().load();
         ISMain.getConfigData().load();
+    }
+    
+    private void saveConfig()
+    {
+        ISMain.getChannelManager().saveChannels();
+        
+        try {
+            ISMain.getPlayerConfig().save("plugins/iSay/players.yml");
+        } catch (Throwable t) {
+            ISMain.log("Could not reload player config", 2);
+        }
+        
+        ISMain.getGroupManager().saveGroupConfigurations();
+        ISMain.getConfigData().save();
     }
     
     private void info(CommandSender cs, String name)
@@ -136,13 +152,10 @@ public class AdministrativeCommands {
                 cs.sendMessage("§7View the list of listeners with §a/isay info -c " + channel.getName() + " listeners");
                 cs.sendMessage("§8====================");
             }
-            
-        } else if (player) {
-            
         }
     }
     
-    private void listeners(CommandSender cs, String channel)
+    private void showChannelListeners(CommandSender cs, String channel)
     {
         List<Channel> l = ISMain.getChannelManager().matchChannel(channel);
             

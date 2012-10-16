@@ -1,12 +1,11 @@
-package com.thevoxelbox.isay.commands;
+package com.patrickanker.isay.commands;
 
 import com.patrickanker.lib.commands.Command;
 import com.patrickanker.lib.commands.CommandPermission;
-import com.thevoxelbox.isay.ChatPlayer;
-import com.thevoxelbox.isay.ISMain;
-import com.thevoxelbox.isay.channels.Channel;
-import com.thevoxelbox.isay.channels.ChatChannel;
-import java.util.ArrayList;
+import com.patrickanker.isay.ChatPlayer;
+import com.patrickanker.isay.ISMain;
+import com.patrickanker.isay.channels.Channel;
+import com.patrickanker.isay.channels.ChatChannel;
 import java.util.Iterator;
 import java.util.List;
 import org.bukkit.command.CommandSender;
@@ -39,15 +38,17 @@ public class ChannelCommands {
             if (cc.hasListener(p.getName())) {
                 ISMain.getChannelManager().getFocus(p.getName()).assignFocus(p.getName(), false);
                 cc.assignFocus(p.getName(), true);
-                p.sendMessage(new StringBuilder().append("§7Channel focus set to §a").append(cc.getName()).toString());
+                p.sendMessage("§7Channel focus set to §a" + cc.getName());
             } else if (args.length == 2) {
                 if (cp.canConnect(cc, args[1])) {
                     cc.connect(p.getName());
+                    ISMain.getChannelManager().getFocus(p.getName()).assignFocus(p.getName(), false);
                 } else {
                     p.sendMessage("§cYou do not have access to that channel.");
                 }
             } else if (cp.canConnect(cc, "")) {
                 cc.connect(p.getName());
+                ISMain.getChannelManager().getFocus(p.getName()).assignFocus(p.getName(), false);
             } else {
                 p.sendMessage("§cYou do not have access to that channel.");
             }
@@ -62,7 +63,6 @@ public class ChannelCommands {
     public void leave(CommandSender cs, String[] args)
     {
         Player p = (Player) cs;
-        ChatPlayer cp = ISMain.getRegisteredPlayer(p);
 
         List l = ISMain.getChannelManager().matchChannel(args[0]);
 
@@ -105,13 +105,13 @@ public class ChannelCommands {
             } else if (args.length == 2) {
                 if (cp.canConnect(cc, args[1])) {
                     cc.addListener(p.getName(), false);
-                    p.sendMessage(new StringBuilder().append("§7Now listening to channel §a").append(cc.getName()).toString());
+                    p.sendMessage("§7Now listening to channel §a" + cc.getName());
                 } else {
                     p.sendMessage("§cYou do not have access to that channel.");
                 }
             } else if (cp.canConnect(cc, "")) {
                 cc.addListener(p.getName(), false);
-                p.sendMessage(new StringBuilder().append("§7Now listening to channel §a").append(cc.getName()).toString());
+                p.sendMessage("§7Now listening to channel §a" + cc.getName());
             } else {
                 p.sendMessage("§cYou do not have access to that channel.");
             }
@@ -129,7 +129,7 @@ public class ChannelCommands {
         ChatPlayer cp = ISMain.getRegisteredPlayer(p);
 
         cp.setMuted(!cp.isMuted());
-        p.sendMessage(new StringBuilder().append("§7You have §a").append(cp.isMuted() ? "silenced" : "turned on").append(" §7chat.").toString());
+        p.sendMessage("§7You have §a" + (cp.isMuted() ? "silenced" : "turned on") + " §7chat.");
     }
 
     @Command(aliases = {"quickmessage", "qm"}, 
@@ -211,5 +211,17 @@ public class ChannelCommands {
                 i++;
             }
         }
+    }
+    
+    @Command(aliases={"channel", "ch"},
+            bounds={1, -1},
+            help="§c/channel [create, -c] <channel> (password) §fcreates a channel with an optional password\n"
+            + "§c/channel [remove, -r] <channel> §fpermanently removes a channel\n"
+            + "§c/channel [enable, -e] <channel> §fenables/disables a channel\n"
+            + "§c/channel [lock, -l] <channel> §flocks a channel to those who do not have the iSay administrative permission\n"
+            + "§c/channel [verbose, -v] <channel> §ftoggles if a channel is verbose or not")
+    public void channelCommand(CommandSender cs, String[] args)
+    {
+        
     }
 }
