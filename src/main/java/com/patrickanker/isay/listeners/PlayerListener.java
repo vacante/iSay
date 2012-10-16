@@ -5,7 +5,6 @@ import com.patrickanker.isay.ISMain;
 import com.patrickanker.isay.MuteServices;
 import com.patrickanker.isay.channels.Channel;
 import com.patrickanker.isay.channels.ChatChannel;
-import java.text.SimpleDateFormat;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
@@ -34,6 +33,11 @@ public class PlayerListener implements Listener {
             if (!ISMain.getConfigData().getString("mute-key-phrase").equals(event.getMessage())) {
                 MuteServices.muteWarn(cp);
             } else {
+                if (!cp.muteTimedOut()) {
+                    MuteServices.muteWarn(cp);
+                    return;
+                }
+                
                 cp.setMuted(false);
                 cp.setMuteTimeout("");
                 MuteServices.unmuteAnnounce(cp);

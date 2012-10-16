@@ -31,6 +31,7 @@ public class AdministrativeCommands {
     @Command(aliases={"isay"},
             bounds={1, -1},
             help="§c/isay reload §freloads iSay from config\n"
+            + "§c/isay save §saves iSay to config\n"
             + "§c/isay info §fshows general information of iSay\n"
             + "§c/isay info -c <channel> §fshows info about a specific channel\n"
             + "§c/isay info -c <channel> [-l, listeners] §fshows the listeners of a channel\n"

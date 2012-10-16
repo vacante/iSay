@@ -110,8 +110,8 @@ public class MessagingCommands {
                 cp.setConversationWith(newTellee);
                 newTellee.setConversationWith(cp);
 
-                p.sendMessage("§7You whispered to §3" + send.getName() + " §8-> §b§o" + concat.trim());
-                send.sendMessage("§3" + p.getName() + " §7whispers §8-> §b§o" + concat.trim());
+                p.sendMessage("§8[§7You §8-> §3" + send.getName() + " §8] §b§o" + concat.trim());
+                send.sendMessage("§8[§3" + p.getName() + " §8-> §7You§8] §b§o" + concat.trim());
 
                 ConsoleLogger.getLogger("iSay").log(Formatter.stripColors("[" + p.getName() + " -> " + send.getName() + "] " + concat.trim()));
             }
