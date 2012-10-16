@@ -38,7 +38,7 @@
         <dependency>
             <groupId>org.bukkit</groupId>
             <artifactId>bukkit</artifactId>
-            <version>1.3.1-R2.1-SNAPSHOT</version>
+            <version>1.3.2-R1.1-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
         
@@ -46,7 +46,7 @@
         <dependency>
             <groupId>com.patrickanker</groupId>
             <artifactId>libpsanker</artifactId>
-            <version>1.4.1</version>
+            <version>1.4.4</version>
             <type>jar</type>
         </dependency>
         
@@ -100,6 +100,32 @@
                         </manifest>
                     </archive>
                 </configuration>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.5.1</version>
+                <executions>
+                    <execution>
+                        <id>copy</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>com.patrickanker</groupId>
+                                    <artifactId>libpsanker</artifactId>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${basedir}/latest</outputDirectory>
+                                    <destFileName>libpsanker-latest.jar</destFileName>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             
             <plugin>
