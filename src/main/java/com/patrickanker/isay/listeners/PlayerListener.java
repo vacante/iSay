@@ -35,6 +35,7 @@ public class PlayerListener implements Listener {
             } else {
                 if (!cp.muteTimedOut()) {
                     MuteServices.muteWarn(cp);
+                    event.setCancelled(true);
                     return;
                 }
                 
