@@ -57,48 +57,6 @@ public class ChannelManager {
         }
         return ret;
     }
-
-    public List<Channel> matchChannel(String key, Object value)
-    {
-        List<Channel> ret = new ArrayList<Channel>();
-        ret.clear();
-
-        for (Map.Entry entry : channels.entrySet()) {
-            ChatChannel c = (ChatChannel) entry.getKey();
-
-            if ((key.equalsIgnoreCase("default"))
-                    && (c.isDefault() == ((Boolean) value).booleanValue())
-                    && (!ret.contains(c))) {
-                ret.add(c);
-            }
-            if ((key.equalsIgnoreCase("enabled"))
-                    && (c.isEnabled() == ((Boolean) value).booleanValue())
-                    && (!ret.contains(c))) {
-                ret.add(c);
-            }
-            if ((key.equalsIgnoreCase("helpop"))
-                    && (c.isHelpOp() == ((Boolean) value).booleanValue())
-                    && (!ret.contains(c))) {
-                ret.add(c);
-            }
-            if ((key.equalsIgnoreCase("locked"))
-                    && (c.isLocked() == ((Boolean) value).booleanValue())
-                    && (!ret.contains(c))) {
-                ret.add(c);
-            }
-            if ((key.equalsIgnoreCase("ghostformat"))
-                    && (c.getGhostFormat().equals(value.toString()))
-                    && (!ret.contains(c))) {
-                ret.add(c);
-            }
-            if ((key.equalsIgnoreCase("password"))
-                    && (c.getPassword().equals(value.toString()))
-                    && (!ret.contains(c))) {
-                ret.add(c);
-            }
-        }
-        return ret;
-    }
     
     public void saveChannels()
     {

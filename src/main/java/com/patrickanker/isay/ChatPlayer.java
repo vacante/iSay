@@ -16,7 +16,6 @@ public class ChatPlayer {
     private boolean adminMute = false;
     private String adminMuteTimeout = "";
     private String format = "$group";
-    private String groupFormat = "$name:";
     private String nameAlias = null;
     private boolean ping = true;
     private boolean joinAllAvailable = false;
@@ -26,6 +25,8 @@ public class ChatPlayer {
     private boolean muted = false;
     private String muteTimeout = "";
     private ChatPlayer converser;
+
+    String groupFormat = "$name:";
 
     public ChatPlayer(Player p)
     {
@@ -87,11 +88,11 @@ public class ChatPlayer {
     {
         ISMain.getPlayerConfig().set(this.p.getName() + ".format", this.format);
         ISMain.getPlayerConfig().set(this.p.getName() + ".namealias", this.nameAlias);
-        ISMain.getPlayerConfig().set(this.p.getName() + ".adminmute", Boolean.valueOf(this.adminMute));
+        ISMain.getPlayerConfig().set(this.p.getName() + ".adminmute", this.adminMute);
         ISMain.getPlayerConfig().set(this.p.getName() + ".adminmutetimeout", this.adminMuteTimeout);
-        ISMain.getPlayerConfig().set(this.p.getName() + ".ping", Boolean.valueOf(this.ping));
-        ISMain.getPlayerConfig().set(this.p.getName() + ".joinallavailable", Boolean.valueOf(this.joinAllAvailable));
-        ISMain.getPlayerConfig().set(this.p.getName() + ".autojoinlistenable", Boolean.valueOf(this.autoJoin));
+        ISMain.getPlayerConfig().set(this.p.getName() + ".ping", this.ping);
+        ISMain.getPlayerConfig().set(this.p.getName() + ".joinallavailable", this.joinAllAvailable);
+        ISMain.getPlayerConfig().set(this.p.getName() + ".autojoinlistenable", this.autoJoin);
         ISMain.getPlayerConfig().set(this.p.getName() + ".autojoinlist", this.autoJoinList);
         ISMain.getPlayerConfig().set(this.p.getName() + ".ignorelist", this.ignoreList);
     }

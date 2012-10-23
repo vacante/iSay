@@ -8,6 +8,8 @@ import com.patrickanker.isay.channels.Channel;
 import com.patrickanker.isay.channels.ChatChannel;
 import java.util.Iterator;
 import java.util.List;
+
+import com.patrickanker.lib.permissions.PermissionsManager;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -34,21 +36,33 @@ public class ChannelCommands {
             p.sendMessage("§cMultiple channels found by that name.");
         } else {
             ChatChannel cc = (ChatChannel) l.get(0);
+            Channel focus = ISMain.getChannelManager().getFocus(p.getName());
 
             if (cc.hasListener(p.getName())) {
-                ISMain.getChannelManager().getFocus(p.getName()).assignFocus(p.getName(), false);
+
+                if (focus != null) {
+                    focus.assignFocus(p.getName(), false);
+                }
+
                 cc.assignFocus(p.getName(), true);
                 p.sendMessage("§7Channel focus set to §a" + cc.getName());
             } else if (args.length == 2) {
                 if (cp.canConnect(cc, args[1])) {
                     cc.connect(p.getName());
-                    ISMain.getChannelManager().getFocus(p.getName()).assignFocus(p.getName(), false);
+
+                    if (focus != null) {
+                        focus.assignFocus(p.getName(), false);
+                    }
+
                 } else {
                     p.sendMessage("§cYou do not have access to that channel.");
                 }
             } else if (cp.canConnect(cc, "")) {
                 cc.connect(p.getName());
-                ISMain.getChannelManager().getFocus(p.getName()).assignFocus(p.getName(), false);
+
+                if (focus != null) {
+                    focus.assignFocus(p.getName(), false);
+                }
             } else {
                 p.sendMessage("§cYou do not have access to that channel.");
             }
@@ -187,16 +201,16 @@ public class ChannelCommands {
                 ChatChannel cc = (ChatChannel) it.next();
                 String foo;
                 if ((cc.hasListener(p.getName())) && (cc.hasFocus(p.getName()))) {
-                    foo = new StringBuilder().append("§a").append(cc.getName()).toString();
+                    foo = "§a" + cc.getName();
                 } else {
                     if ((cc.hasListener(p.getName())) && (!cc.hasFocus(p.getName()))) {
-                        foo = new StringBuilder().append("§f").append(cc.getName()).toString();
+                        foo = "§f " + cc.getName();
                     } else {
-                        foo = new StringBuilder().append("§8").append(cc.getName()).toString();
+                        foo = "§8" + cc.getName();
                     }
                 }
                 
-                p.sendMessage(new StringBuilder().append("§f").append(i).append(".§8) ").append(foo).toString());
+                p.sendMessage("§f" + i + ".§8) " + foo);
                 i++;
             }
         } else {
@@ -207,7 +221,7 @@ public class ChannelCommands {
             while (it.hasNext()) {
                 ChatChannel cc = (ChatChannel) it.next();
 
-                cs.sendMessage(new StringBuilder().append("§f").append(i).append(".§8)§f ").append(cc.getName()).toString());
+                cs.sendMessage("§f" + i + ".§8)§f " + cc.getName());
                 i++;
             }
         }
@@ -219,9 +233,95 @@ public class ChannelCommands {
             + "§c/channel [remove, -r] <channel> §fpermanently removes a channel\n"
             + "§c/channel [enable, -e] <channel> §fenables/disables a channel\n"
             + "§c/channel [lock, -l] <channel> §flocks a channel to those who do not have the iSay administrative permission\n"
-            + "§c/channel [verbose, -v] <channel> §ftoggles if a channel is verbose or not")
+            + "§c/channel [verbose, -v] <channel> §ftoggles if a channel is verbose or not\n"
+            + "§c/channel [promote, -p] <channel> §ftoggles if only promoted individuals can chat in a channel")
+    @CommandPermission("isay.channels.channel")
     public void channelCommand(CommandSender cs, String[] args)
     {
-        
+        if (args.length < 2) {
+            cs.sendMessage("§cA channel must be specified.");
+            return;
+        }
+
+        if (args[0].equalsIgnoreCase("create") || args[0].equalsIgnoreCase("-c")) {
+            if (args.length == 2) {
+                if (ISMain.getChannelManager().matchChannel(args[1]).size() == 1) {
+                    cs.sendMessage("§cA channel already exists with that name.");
+                    return;
+                }
+
+                ChatChannel channel = new ChatChannel(args[1]);
+                ISMain.getChannelManager().registerChannel(channel);
+
+                cs.sendMessage("§7Registered new channel §a" + channel);
+
+                if (!PermissionsManager.getHandler().hasPermission(cs.getName(), "isay.channels." + args[1] + ".admin")) {
+                    PermissionsManager.getHandler().givePermission(cs.getName(), "isay.channels." + args[1] + ".admin");
+                    return;
+                }
+            } else {
+                if (ISMain.getChannelManager().matchChannel(args[1]).size() == 1) {
+                    cs.sendMessage("§cA channel already exists with that name.");
+                    return;
+                }
+
+                ChatChannel channel = new ChatChannel(args[1]);
+                ISMain.getChannelManager().registerChannel(channel);
+
+                String concat = "";
+
+                for (int i = 2; i < args.length; ++i) {
+                    concat += args[i] + " ";
+                }
+
+                concat = concat.trim();
+                channel.setPassword(concat);
+
+                cs.sendMessage("§7Registered new channel \"§a" + channel + "§7\" with password \"§a" + concat + "§7\"");
+
+                if (!PermissionsManager.getHandler().hasPermission(cs.getName(), "isay.channels." + args[1] + ".admin")) {
+                    PermissionsManager.getHandler().givePermission(cs.getName(), "isay.channels." + args[1] + ".admin");
+                    return;
+                }
+            }
+        } else if (args[0].equalsIgnoreCase("remove") || args[0].equalsIgnoreCase("-r")) {
+            if (!PermissionsManager.getHandler().hasPermission(cs.getName(), "isay.channels." + args[1] + ".admin")) {
+                cs.sendMessage("§cYou do not have authorisation to administer this channel.");
+                return;
+            }
+        } else if (args[0].equalsIgnoreCase("enable") || args[0].equalsIgnoreCase("-e")) {
+            if (!PermissionsManager.getHandler().hasPermission(cs.getName(), "isay.channels." + args[1] + ".admin")) {
+                cs.sendMessage("§cYou do not have authorisation to administer this channel.");
+                return;
+            }
+        } else if (args[0].equalsIgnoreCase("lock") || args[0].equalsIgnoreCase("-l")) {
+            if (!PermissionsManager.getHandler().hasPermission(cs.getName(), "isay.channels." + args[1] + ".admin")) {
+                cs.sendMessage("§cYou do not have authorisation to administer this channel.");
+                return;
+            }
+        } else if (args[0].equalsIgnoreCase("verbose") || args[0].equalsIgnoreCase("-v")) {
+            if (!PermissionsManager.getHandler().hasPermission(cs.getName(), "isay.channels." + args[1] + ".admin")) {
+                cs.sendMessage("§cYou do not have authorisation to administer this channel.");
+                return;
+            }
+        } else if (args[0].equalsIgnoreCase("promote") || args[0].equalsIgnoreCase("-p")) {
+            List<Channel> l = ISMain.getChannelManager().matchChannel(args[1]);
+
+            if (l.isEmpty()) {
+                 cs.sendMessage("§cNo channel found with that name.");
+            } else if (l.size() > 1) {
+                cs.sendMessage("§cMultiple channels found with that name.");
+            } else {
+                ChatChannel cc = (ChatChannel) l.get(0);
+
+                if (!PermissionsManager.getHandler().hasPermission(cs.getName(), "isay.channels." + cc.getName() + ".admin")) {
+                    cs.sendMessage("§cYou do not have authorisation to administer this channel.");
+                    return;
+                }
+
+                cc.setPromoted(!cc.isPromoted());
+                cs.sendMessage("§a" + cc.getName() + "§7's chat has been §a" + (cc.isPromoted() ? "promoted" : "normalised"));
+            }
+        }
     }
 }

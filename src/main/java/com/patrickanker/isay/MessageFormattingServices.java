@@ -121,11 +121,7 @@ public class MessageFormattingServices {
         Pattern patWithoutDay = Pattern.compile(hmsFormat);
         Matcher match = patWithoutDay.matcher(in);
 
-        if (!match.find(0)) {
-            return false;
-        } else {
-            return true;
-        }
+        return (match.find(0));
     }
     
     public static String getDateString(String in)

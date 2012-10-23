@@ -17,7 +17,9 @@ import org.bukkit.entity.Player;
 
 public class MessagingCommands {
 
-    @Command(aliases = {"broadcast", "bcast"}, bounds = {1, -1}, help = "Broadcast a message to all using §c/broadcast (message...)")
+    @Command(aliases = {"broadcast", "bcast"}, 
+            bounds = {1, -1}, 
+            help = "Broadcast a message to all using §c/broadcast (message...)")
     @CommandPermission("isay.messaging.broadcast")
     public void broadcast(CommandSender cs, String[] args)
     {
@@ -36,7 +38,8 @@ public class MessagingCommands {
         Bukkit.getConsoleSender().sendMessage(Formatter.stripColors(concat + " (Origin: " + cs.getName() + ")"));
     }
 
-    @Command(aliases = {"say"}, bounds = {0, -1})
+    @Command(aliases = {"say"}, 
+            bounds = {0, -1})
     @CommandPermission("isay.messaging.say")
     public void say(CommandSender cs, String[] args)
     {
@@ -75,8 +78,8 @@ public class MessagingCommands {
     @CommandPermission("isay.messaging.whisper")
     public void whisper(CommandSender cs, String[] args)
     {
-        Player p = (Player) cs;
-        ChatPlayer cp = ISMain.getRegisteredPlayer(p);
+        Player from = (Player) cs;
+        ChatPlayer cp = ISMain.getRegisteredPlayer(from);
         
         if (cp.isMuted()) {
             MuteServices.muteWarn(cp);
@@ -86,12 +89,12 @@ public class MessagingCommands {
         List<Player> l = Bukkit.matchPlayer(args[0]);
 
         if (l.isEmpty()) {
-            p.sendMessage("§cNo player found by that name.");
+            from.sendMessage("§cNo player found by that name.");
         } else if (l.size() > 1) {
-            p.sendMessage("§cMultiple players found by that name.");
+            from.sendMessage("§cMultiple players found by that name.");
         } else {
-            Player send = (Player) l.get(0);
-            ChatPlayer newTellee = ISMain.getRegisteredPlayer(send);
+            Player to = (Player) l.get(0);
+            ChatPlayer newTellee = ISMain.getRegisteredPlayer(to);
 
             String concat = "";
 
@@ -100,20 +103,35 @@ public class MessagingCommands {
             }
 
             if (newTellee.getPlayer().getName().equals(cp.getPlayer().getName())) {
-                p.sendMessage("§7You mumbled to yourself §8-> §b§o" + concat.trim());
+                from.sendMessage("§7You mumbled to yourself §8-> §b§o" + concat.trim());
             } else {
                 if (newTellee.isIgnoring(cp)) {
                     cp.getPlayer().sendMessage("§cThis player is ignoring you.");
                     return;
                 }
 
+                String getter;
+                String sender;
+
+                if (cp.getNameAlias() != null) {
+                    sender = cp.getNameAlias();
+                } else {
+                    sender = cp.getPlayer().getName();
+                }
+
+                if (cp.getNameAlias() != null) {
+                    getter = newTellee.getNameAlias();
+                } else {
+                    getter = newTellee.getPlayer().getName();
+                }
+
                 cp.setConversationWith(newTellee);
                 newTellee.setConversationWith(cp);
 
-                p.sendMessage("§8[§7You §8-> §3" + send.getName() + " §8] §b§o" + concat.trim());
-                send.sendMessage("§8[§3" + p.getName() + " §8-> §7You§8] §b§o" + concat.trim());
+                from.sendMessage("§8[§7You §8-> §3" + getter + "§8] §b§o" + concat.trim());
+                to.sendMessage("§8[§3" + sender + " §8-> §7You§8] §b§o" + concat.trim());
 
-                ConsoleLogger.getLogger("iSay").log(Formatter.stripColors("[" + p.getName() + " -> " + send.getName() + "] " + concat.trim()));
+                ConsoleLogger.getLogger("iSay").log(Formatter.stripColors("[" + from.getName() + " -> " + to.getName() + "] " + concat.trim()));
             }
         }
     }
@@ -126,8 +144,8 @@ public class MessagingCommands {
     @CommandPermission("isay.messaging.whisper")
     public void reply(CommandSender cs, String[] args)
     {
-        Player p = (Player) cs;
-        ChatPlayer cp = ISMain.getRegisteredPlayer(p);
+        Player from = (Player) cs;
+        ChatPlayer cp = ISMain.getRegisteredPlayer(from);
         
         if (cp.isMuted()) {
             MuteServices.muteWarn(cp);
@@ -138,7 +156,7 @@ public class MessagingCommands {
 
         if (converser != null) {
             if (!converser.getPlayer().isOnline()) {
-                p.sendMessage("§cThat player is not online.");
+                from.sendMessage("§cThat player is not online.");
                 return;
             }
 
@@ -148,13 +166,30 @@ public class MessagingCommands {
                 concat = concat + args[i] + " §b§o";
             }
 
-            p.sendMessage("§7You whispered to §3" + converser.getPlayer().getName() + " §8-> §b§o" + concat.trim());
-            converser.getPlayer().sendMessage("§3" + p.getName() + " §7whispers §8-> §b§o" + concat.trim());
+            String getter;
+            String sender;
 
-            concat.replaceAll("\u00a7b\u00a7o", "");
-            ConsoleLogger.getLogger("iSay").log(Formatter.stripColors("[" + p.getName() + " -> " + converser.getPlayer().getName() + "] " + concat.trim()));
+            if (cp.getNameAlias() != null) {
+                sender = cp.getNameAlias();
+            } else {
+                sender = cp.getPlayer().getName();
+            }
+
+            if (cp.getNameAlias() != null) {
+                getter = converser.getNameAlias();
+            } else {
+                getter = converser.getPlayer().getName();
+            }
+
+            cp.setConversationWith(converser);
+            converser.setConversationWith(cp);
+
+            from.sendMessage("§8[§7You §8-> §3" + getter + "§8] §b§o" + concat.trim());
+            converser.sendMessage("§8[§3" + sender + " §8-> §7You§8] §b§o" + concat.trim());
+
+            ConsoleLogger.getLogger("iSay").log(Formatter.stripColors("[" + from.getName() + " -> " + converser.getPlayer().getName() + "] " + concat.trim()));
         } else {
-            p.sendMessage("§cYou haven't whispered anyone yet!");
+            from.sendMessage("§cYou haven't whispered anyone yet!");
         }
     }
 

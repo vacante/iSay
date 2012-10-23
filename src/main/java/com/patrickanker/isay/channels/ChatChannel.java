@@ -1,6 +1,7 @@
 package com.patrickanker.isay.channels;
 
 import com.patrickanker.lib.logging.ConsoleLogger;
+import com.patrickanker.lib.permissions.PermissionsManager;
 import com.patrickanker.lib.util.Formatter;
 import com.patrickanker.isay.ChatPlayer;
 import com.patrickanker.isay.ISMain;
@@ -23,6 +24,7 @@ public class ChatChannel extends Channel {
     protected boolean enabled = true;
     protected boolean helpop = false;
     protected boolean locked = false;
+    protected boolean promoted = false;
     protected boolean verbose = true;
     protected String ghostformat = "&8[&f" + this.name + "&8] $group&f $message";
     protected String password = "";
@@ -82,6 +84,11 @@ public class ChatChannel extends Channel {
         List<String> oldListeners = new LinkedList<String>();
         
         String copy = message;
+
+        if (promoted && !PermissionsManager.getHandler().hasPermission(cp.getPlayer().getName(), "isay.channels." + name + ".promoted")) {
+            cp.sendMessage("§cThis is a promoted channel. You cannot chat without permission.");
+            return;
+        }
         
         if (MessageFormattingServices.containsURLs(message)) {
             copy = MessageFormattingServices.shortenURLs(message);
@@ -187,6 +194,10 @@ public class ChatChannel extends Channel {
         if (ISMain.getChannelConfig().contains(this.name + ".verbose")) {
             this.verbose = ISMain.getChannelConfig().getBoolean(this.name + ".verbose");
         }
+
+        if (ISMain.getChannelConfig().contains(this.name + ".promoted")) {
+            this.promoted = ISMain.getChannelConfig().getBoolean(this.name + ".promoted");
+        }
         
         if (ISMain.getChannelConfig().contains(this.name + ".ghostformat")) {
             this.ghostformat = ISMain.getChannelConfig().getString(this.name + ".ghostformat");
@@ -205,33 +216,39 @@ public class ChatChannel extends Channel {
         ISMain.getChannelConfig().set(this.name + ".helpop", this.helpop);
         ISMain.getChannelConfig().set(this.name + ".locked", this.locked);
         ISMain.getChannelConfig().set(this.name + ".verbose", this.verbose);
+        ISMain.getChannelConfig().set(this.name + ".promoted", this.promoted);
         ISMain.getChannelConfig().set(this.name + ".ghostformat", this.ghostformat);
         ISMain.getChannelConfig().set(this.name + ".password", this.password);
     }
 
     public void setDefault(boolean bool)
     {
-        this.def = Boolean.valueOf(bool);
+        this.def = bool;
     }
 
     public void setEnabled(boolean bool)
     {
-        this.enabled = Boolean.valueOf(bool);
+        this.enabled = bool;
     }
 
     public void setHelpOp(boolean bool)
     {
-        this.helpop = Boolean.valueOf(bool);
+        this.helpop = bool;
     }
 
     public void setLocked(boolean bool)
     {
-        this.locked = Boolean.valueOf(bool);
+        this.locked = bool;
     }
     
     public void setVerbose(boolean bool)
     {
-        this.verbose = Boolean.valueOf(bool);
+        this.verbose = bool;
+    }
+
+    public void setPromoted(boolean bool)
+    {
+        this.promoted = bool;
     }
 
     public void setGhostFormat(String str)
@@ -269,6 +286,11 @@ public class ChatChannel extends Channel {
         return this.verbose;
     }
 
+    public boolean isPromoted()
+    {
+        return this.promoted;
+    }
+
     public String getGhostFormat()
     {
         return this.ghostformat;
@@ -293,7 +315,6 @@ public class ChatChannel extends Channel {
     
     public HashMap<String, Boolean> getListenerMap()
     {
-        HashMap<String, Boolean> map = listeners;
-        return map;
+        return listeners;
     }
 }
