@@ -13,14 +13,16 @@
 package com.patrickanker.isay.commands;
 
 import com.patrickanker.isay.*;
+import com.patrickanker.isay.channels.DebugChannel;
 import com.patrickanker.lib.commands.Command;
 import com.patrickanker.lib.commands.CommandPermission;
 import com.patrickanker.isay.channels.Channel;
 import com.patrickanker.isay.channels.ChatChannel;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeSet;
+
+import java.util.*;
+
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 
 public class AdministrativeCommands {
@@ -30,7 +32,8 @@ public class AdministrativeCommands {
     
     @Command(aliases={"isay"},
             bounds={1, -1},
-            help="§c/isay reload §freloads iSay from config\n"
+            help="§c/isay debug §ftoggles iSay Debug mode\n"
+            + "§c/isay reload §freloads iSay from config\n"
             + "§c/isay save §saves iSay to config\n"
             + "§c/isay info §fshows general information of iSay\n"
             + "§c/isay info -c <channel> §fshows info about a specific channel\n"
@@ -53,6 +56,21 @@ public class AdministrativeCommands {
         } else if (args[0].equalsIgnoreCase("save")) {
             saveConfig();
             cs.sendMessage(LOGO + " §7saved.");
+        } else if (args[0].equalsIgnoreCase("debug")) {
+            if (!(cs instanceof Player)) {
+                cs.sendMessage("§cThe console already views iSay in debug mode.");
+                return;
+            }
+
+            DebugChannel debugChannel = ISMain.getChannelManager().getDebugChannel();
+
+            if (debugChannel.hasListener(cs.getName())) {
+                debugChannel.removeListener(cs.getName());
+                cs.sendMessage(LOGO + " §7debug mode deactivated.");
+            } else {
+                debugChannel.addListener(cs.getName());
+                cs.sendMessage(LOGO + " §7debug mode activated.");
+            }
         }
     }
     
@@ -166,16 +184,18 @@ public class AdministrativeCommands {
             cs.sendMessage("§cMultiple channels found with that name.");
         } else {
             ChatChannel c = (ChatChannel) l.get(0);
-            TreeSet<String> tree = new TreeSet<String>();
+            List<String> list = new LinkedList<String>();
             
             for (String listener : c.getListenerList()) {
-                tree.add(listener);
+                list.add(listener);
             }
             
-            if (tree.isEmpty()) {
+            if (list.isEmpty()) {
                 cs.sendMessage("§cThere are no listeners to this channel.");
                 return;
             }
+
+            Collections.sort(list);
             
             cs.sendMessage("§8====================");
             cs.sendMessage(LOGO + " §7channel §6" + c.getName());
@@ -184,7 +204,7 @@ public class AdministrativeCommands {
             
             int i = 1;
             
-            for (String str : tree) {
+            for (String str : list) {
                 cs.sendMessage("§f" + i + "§8.) " + ((c.hasFocus(str)) ? "§a" : "§7") + str);
                 ++i;
             }

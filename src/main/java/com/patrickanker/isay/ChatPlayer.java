@@ -20,8 +20,8 @@ public class ChatPlayer {
     private boolean ping = true;
     private boolean joinAllAvailable = false;
     private boolean autoJoin = false;
-    private List<String> autoJoinList = new LinkedList();
-    private List<String> ignoreList = new LinkedList();
+    private List<String> autoJoinList = new LinkedList<String>();
+    private List<String> ignoreList = new LinkedList<String>();
     private boolean muted = false;
     private String muteTimeout = "";
     private ChatPlayer converser;
@@ -31,17 +31,6 @@ public class ChatPlayer {
     public ChatPlayer(Player p)
     {
         this.p = p;
-        load();
-    }
-
-    public void reload()
-    {
-        save();
-        load();
-    }
-
-    public void forceReload()
-    {
         load();
     }
 
@@ -328,6 +317,8 @@ public class ChatPlayer {
 
     public void sendMessages(String[] messages)
     {
-        this.p.sendMessage(messages);
+        for (String str : messages) {
+            sendMessage(str);
+        }
     }
 }

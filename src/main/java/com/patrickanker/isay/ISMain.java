@@ -13,6 +13,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import com.patrickanker.lib.util.Formatter;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -88,6 +90,7 @@ public class ISMain extends JavaPlugin {
         commandManager.registerCommands(MessagingCommands.class);
         commandManager.registerCommands(AdministrativeCommands.class);
         commandManager.registerCommands(ModerationCommands.class);
+        commandManager.registerCommands(PlayerCommands.class);
         
         Bukkit.getPluginManager().registerEvents(new PlayerListener(), this);
         Bukkit.getPluginManager().registerEvents(permsManager, this);
@@ -281,11 +284,17 @@ public class ISMain extends JavaPlugin {
 
     public static void log(String str, int importance)
     {
-        ConsoleLogger.getLogger("iSay").log(str, importance);
-    }
+        str = Formatter.stripColors(str);
 
-    public static void log(String module, String str, int importance)
-    {
-        ConsoleLogger.getLogger("iSay").log(module, str, importance);
+        String playerCopy = str;
+
+        if (importance == 1) {
+            playerCopy = "§6[WARNING] " + playerCopy;
+        } else if (importance == 2) {
+            playerCopy = "§c[ERROR] " + playerCopy;
+        }
+
+        channelManager.getDebugChannel().dispatch(null, playerCopy);
+        ConsoleLogger.getLogger("iSay").log(str, importance);
     }
 }

@@ -26,7 +26,7 @@ public class PlayerListener implements Listener {
             event.setCancelled(true);
             return;
         }
-        
+
         ChatPlayer cp = ISMain.getRegisteredPlayer(event.getPlayer());
         
         if (cp.isMuted()) {

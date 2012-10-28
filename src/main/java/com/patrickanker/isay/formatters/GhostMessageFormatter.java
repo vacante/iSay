@@ -62,8 +62,15 @@ public class GhostMessageFormatter extends Formatter {
         
         master = Formatter.encodeColors(master);
 
+        in = in.replace("$message", "$#message");
+        in = in.replace("$m", "$#m");
+
         master = master.replace("$message", in);
         master = master.replace("$m", in);
+
+        master = master.replace("$#message", "$message");
+        master = master.replace("$#m", "$m");
+
         return master;
     }
 

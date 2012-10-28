@@ -35,7 +35,7 @@ public class MessagingCommands {
             p.sendMessage(concat);
         }
 
-        Bukkit.getConsoleSender().sendMessage(Formatter.stripColors(concat + " (Origin: " + cs.getName() + ")"));
+        ISMain.log(concat + " (Origin: " + cs.getName() + ")");
     }
 
     @Command(aliases = {"say"}, 
@@ -58,7 +58,7 @@ public class MessagingCommands {
                 p.sendMessage(concat);
             }
 
-            Bukkit.getConsoleSender().sendMessage(concat + ChatColor.WHITE + " (Origin: " + cs.getName() + ")");
+            ISMain.log(concat + "(Origin: " + cs.getName() + ")");
         } else {
             concat = Formatter.selectFormatter(ConsoleMessageFormatter.class).formatMessage(concat, null, new Object[0]);
 
@@ -66,6 +66,7 @@ public class MessagingCommands {
                 p.sendMessage(concat);
             }
 
+            ISMain.log(concat);
             Bukkit.getConsoleSender().sendMessage(Formatter.stripColors(concat));
         }
     }
@@ -131,7 +132,7 @@ public class MessagingCommands {
                 from.sendMessage("§8[§7You §8-> §3" + getter + "§8] §b§o" + concat.trim());
                 to.sendMessage("§8[§3" + sender + " §8-> §7You§8] §b§o" + concat.trim());
 
-                ConsoleLogger.getLogger("iSay").log(Formatter.stripColors("[" + from.getName() + " -> " + to.getName() + "] " + concat.trim()));
+                ISMain.log("[" + from.getName() + " -> " + to.getName() + "] " + concat.trim());
             }
         }
     }
@@ -175,7 +176,7 @@ public class MessagingCommands {
                 sender = cp.getPlayer().getName();
             }
 
-            if (cp.getNameAlias() != null) {
+            if (converser.getNameAlias() != null) {
                 getter = converser.getNameAlias();
             } else {
                 getter = converser.getPlayer().getName();
@@ -187,7 +188,7 @@ public class MessagingCommands {
             from.sendMessage("§8[§7You §8-> §3" + getter + "§8] §b§o" + concat.trim());
             converser.sendMessage("§8[§3" + sender + " §8-> §7You§8] §b§o" + concat.trim());
 
-            ConsoleLogger.getLogger("iSay").log(Formatter.stripColors("[" + from.getName() + " -> " + converser.getPlayer().getName() + "] " + concat.trim()));
+            ISMain.log("[" + from.getName() + " -> " + converser.getPlayer().getName() + "] " + concat.trim());
         } else {
             from.sendMessage("§cYou haven't whispered anyone yet!");
         }

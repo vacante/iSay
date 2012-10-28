@@ -38,12 +38,6 @@ public class ChatChannel extends Channel {
         load();
     }
 
-    public ChatChannel(String name, String password)
-    {
-        super(name);
-        this.password = password;
-    }
-
     @Override
     public void connect(String player)
     {
@@ -53,7 +47,7 @@ public class ChatChannel extends Channel {
             for (Map.Entry l : this.listeners.entrySet()) {
                 Player pl = Bukkit.getPlayer((String) l.getKey());
 
-                if (((Boolean) l.getValue()).booleanValue() && verbose) {
+                if (((Boolean) l.getValue()) && verbose) {
                     pl.sendMessage(ChatColor.GREEN + player + ChatColor.GRAY + " has joined " + ChatColor.GREEN + this.name + ChatColor.DARK_GRAY + ".");
                 }
             }
@@ -66,15 +60,6 @@ public class ChatChannel extends Channel {
             addListener(player, true);
         } else if ((hasListener(player)) && (!hasFocus(player))) {
             assignFocus(player, true);
-        }
-    }
-
-    public void setListenerType(String player, boolean focused)
-    {
-        if (!hasListener(player)) {
-            addListener(player, focused);
-        } else {
-            assignFocus(player, focused);
         }
     }
 
@@ -116,11 +101,15 @@ public class ChatChannel extends Channel {
                 }
             }
 
+            if (ISMain.getChannelManager().getDebugChannel().hasListener(_cp.getPlayer().getName())) {
+                continue;
+            }
+
             if ((_cp.isIgnoring(cp)) || ((ISMain.getRegisteredPlayer(pl).isMuted()) && (!isHelpOp()))) {
                 continue;
             }
 
-            if (((Boolean) l.getValue()).booleanValue()) {
+            if (((Boolean) l.getValue())) {
                 _cp.sendMessage(focus);
                 
             } else {
@@ -145,8 +134,8 @@ public class ChatChannel extends Channel {
         }
         
         stats.updateInt(STATS_CURRENT_MESSAGE_COUNT, count);
-        
-        ConsoleLogger.getLogger("iSay").log(Formatter.stripColors(getName() + "-> " + cp.getPlayer().getName() + ": " + message));
+
+        ISMain.log(getName() + "-> " + cp.getPlayer().getName() + ": " + message);
     }
 
     @Override
@@ -156,7 +145,7 @@ public class ChatChannel extends Channel {
             for (Map.Entry l : this.listeners.entrySet()) {
                 Player pl = Bukkit.getPlayer((String) l.getKey());
 
-                if (((Boolean) l.getValue()).booleanValue() && verbose) {
+                if (((Boolean) l.getValue()) && verbose) {
                     pl.sendMessage(ChatColor.GREEN + player + ChatColor.GRAY + " has left " + ChatColor.GREEN + this.name + ChatColor.DARK_GRAY + ".");
                 }
             }

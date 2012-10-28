@@ -14,34 +14,121 @@ public class ChannelManager {
     protected static HashMap<Channel, Boolean> channels = new HashMap();
     protected Channel def = null;
     protected Channel helpop = null;
+
+    private DebugChannel debug;
     
     private static final File configFile = new File("plugins/iSay/channels.yml");
 
+    public ChannelManager()
+    {
+        registerChannel(new DebugChannel());
+
+        if (!configFile.exists()) {
+            try {
+                configFile.getParentFile().mkdirs();
+                configFile.createNewFile();
+                ISMain.log("No channel config found... Created new config & internally writing default channels");
+            } catch (IOException ex) {
+                ISMain.log("Could not create channel config file: " + ex.getMessage(), 2);
+            }
+
+            writeDefaults();
+        } else {
+            YamlConfiguration channelConfig = ISMain.getChannelConfig();
+
+            try {
+                channelConfig.load(configFile);
+            } catch (Throwable t) {
+                ISMain.log("Could not load channels: " + t.getMessage(), 2);
+                writeDefaults();
+            }
+
+            List<String> _channelList = channelConfig.getStringList("channels");
+
+            for (String _channel : _channelList) {
+                ChatChannel cc = new ChatChannel(_channel);
+                registerChannel(cc);
+            }
+
+            for (Map.Entry<Channel, Boolean> entry : channels.entrySet()) {
+                if (((ChatChannel) entry.getKey()).isDefault()) {
+                    this.def = entry.getKey();
+                    break;
+                }
+            }
+
+            for (Map.Entry<Channel, Boolean> entry : channels.entrySet()) {
+                if (((ChatChannel) entry.getKey()).isHelpOp()) {
+                    this.helpop = entry.getKey();
+                    break;
+                }
+            }
+        }
+
+        Bukkit.getScheduler().scheduleAsyncRepeatingTask(ISMain.getInstance(), new MPMThread(), 0L, 1200L);
+    }
+
     public void registerChannel(Channel channel)
     {
-        if ((channel instanceof ChatChannel)) {
+        if (channel instanceof ChatChannel) {
             ChatChannel _channel = (ChatChannel) channel;
-            channels.put(_channel, Boolean.valueOf(_channel.isEnabled()));
+            channels.put(_channel, _channel.isEnabled());
+        }
+
+        if (channel instanceof DebugChannel) {
+            debug = (DebugChannel) channel;
         }
     }
 
     public void unregisterChannel(Channel channel)
     {
-        if (!(channel instanceof ChatChannel)) {
-            return;
-        }
-        if (channels.containsKey(channel)) {
-            channels.remove(channel);
+        if (channel instanceof ChatChannel) {
+            if (channels.containsKey(channel)) {
+                channels.remove(channel);
+            }
         }
     }
 
     public boolean isRegistered(Channel channel)
     {
-        if (!(channel instanceof ChatChannel)) {
-            return false;
+        if (channel instanceof ChatChannel)
+            return channels.containsKey(channel);
+        else if (channel instanceof DebugChannel) {
+            DebugChannel db = (DebugChannel) channel;
+
+            return debug.getSessionUUID().equals(db.getSessionUUID());
         }
 
-        return channels.containsKey(channel);
+        return false;
+    }
+
+    // ChatChannel stuff
+    public void removeChannel(ChatChannel channel)
+    {
+        unregisterChannel(channel);
+
+        for (Map.Entry<String, Boolean> listener : channel.listeners.entrySet()) {
+            if (listener.getValue()) {
+                if (!def.hasListener(listener.getKey())) {
+                    def.addListener(listener.getKey(), true);
+                } else {
+                    def.assignFocus(listener.getKey(), true);
+                }
+            }
+        }
+
+        List<String> l = new LinkedList<String>();
+
+        for (Map.Entry<Channel, Boolean> entry : channels.entrySet()) {
+            if (entry.getKey().getName().equals(channel.getName()))
+                continue;
+
+            l.add(entry.getKey().getName());
+        }
+
+        ISMain.getChannelConfig().set("channels", l);
+        ISMain.getChannelConfig().set(channel.getName(), null);
+
     }
 
     public List<Channel> matchChannel(String name)
@@ -81,53 +168,6 @@ public class ChannelManager {
         for (Map.Entry<Channel, Boolean> entry : channels.entrySet()) {
             entry.getKey().load();
         }
-    }
-
-    public ChannelManager()
-    {
-        if (!configFile.exists()) {
-            try {
-                configFile.getParentFile().mkdirs();
-                configFile.createNewFile();
-                ISMain.log("No channel config found... Created new config & internally writing default channels");
-            } catch (IOException ex) {
-                ISMain.log("Could not create channel config file: " + ex.getMessage(), 2);
-            }
-
-            writeDefaults();
-        } else {
-            YamlConfiguration channelConfig = ISMain.getChannelConfig();
-            
-            try {
-                channelConfig.load(configFile);
-            } catch (Throwable t) {
-                ISMain.log("Could not load channels: " + t.getMessage(), 2);
-                writeDefaults();
-            }
-            
-            List<String> _channelList = channelConfig.getStringList("channels");
-            
-            for (String _channel : _channelList) {
-                ChatChannel cc = new ChatChannel(_channel);
-                registerChannel(cc);
-            }
-            
-            for (Map.Entry<Channel, Boolean> entry : channels.entrySet()) {
-                if (((ChatChannel) entry.getKey()).isDefault()) {
-                    this.def = entry.getKey();
-                    break;
-                }
-            }
-            
-            for (Map.Entry<Channel, Boolean> entry : channels.entrySet()) {
-                if (((ChatChannel) entry.getKey()).isHelpOp()) {
-                    this.helpop = entry.getKey();
-                    break;
-                }
-            }
-        }
-        
-        Bukkit.getScheduler().scheduleAsyncRepeatingTask(ISMain.getInstance(), new MPMThread(), 0L, 1200L);
     }
 
     public void shutDown()
@@ -196,26 +236,33 @@ public class ChannelManager {
         this.helpop = _helpop;
     }
 
+    // DebugChannel stuff
+    public DebugChannel getDebugChannel()
+    {
+        return debug;
+    }
+
+    // Events
     public void onPlayerLogin(ChatPlayer cp)
     {
         ((ChatChannel) getDefaultChannel()).connectWithoutBroadcast(cp.getPlayer().getName());
 
-        if (cp.isJoinAllAvailableEnabled()) {
-            ISMain.getChannelManager().joinAllAvailableChannels(cp);
-        } else if (cp.hasAutoJoin()) {
-            List channelNames = cp.getAutoJoinList();
-            Iterator it = channelNames.listIterator();
+        if (cp.hasAutoJoin()) {
+            if (cp.isJoinAllAvailableEnabled()) {
+                ISMain.getChannelManager().joinAllAvailableChannels(cp);
+            } else {
+                List<String> channelNames = cp.getAutoJoinList();
+                Iterator<String> it = channelNames.listIterator();
 
-            while (it.hasNext()) {
-                String channelName = (String) it.next();
-                List l = matchChannel(channelName);
+                while (it.hasNext()) {
+                    String channelName = (String) it.next();
+                    List l = matchChannel(channelName);
 
-                if ((!l.isEmpty()) && (l.size() <= 1)
-                        && (cp.canConnect((Channel) l.get(0), ""))) {
-                    ((ChatChannel) l.get(0)).connectWithoutBroadcast(cp.getPlayer().getName());
+                    if ((l.size() == 1) && (cp.canConnect((Channel) l.get(0), ""))) {
+                        ((ChatChannel) l.get(0)).connectWithoutBroadcast(cp.getPlayer().getName());
+                    }
                 }
             }
-
         }
 
         getDefaultChannel().assignFocus(cp.getPlayer().getName(), true);
