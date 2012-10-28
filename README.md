@@ -1,6 +1,6 @@
 [Bukkit]: http://bukkit.org/
 [Maven]: http://maven.apache.org/
-[Installation]
+[Installation]: https://github.com/psanker/iSay/wiki/Installation
 
 iSay
 ===========
