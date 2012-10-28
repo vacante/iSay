@@ -15,6 +15,8 @@ I use maven to handle my dependencies.
 - Check out this repository.
 - Run ```mvn clean package```
 
+To publish the copy of iSay into the "latest" directory I use ```mvn clean assembly:assembly package```
+
 Tickets
 -------------------
 
