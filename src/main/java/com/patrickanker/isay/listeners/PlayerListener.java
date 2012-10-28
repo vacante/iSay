@@ -5,6 +5,8 @@ import com.patrickanker.isay.ISMain;
 import com.patrickanker.isay.MuteServices;
 import com.patrickanker.isay.channels.Channel;
 import com.patrickanker.isay.channels.ChatChannel;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
@@ -12,15 +14,13 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
+import java.util.Set;
+
 public class PlayerListener implements Listener {
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onPlayerChat(AsyncPlayerChatEvent event)
     {
-        if (event.isCancelled()) {
-            return;
-        }
-
         // WorldEdit CUI call
         if (event.getMessage().startsWith("u00a7")) {
             event.setCancelled(true);
@@ -43,7 +43,10 @@ public class PlayerListener implements Listener {
                 cp.setMuteTimeout("");
                 MuteServices.unmuteAnnounce(cp);
             }
-            
+
+            Set<Player> recipients = event.getRecipients();
+            recipients.clear();
+
             event.setCancelled(true);
             return;
         }
@@ -63,10 +66,23 @@ public class PlayerListener implements Listener {
         if (channel != null) {
             ChatChannel cc = (ChatChannel) channel;
             cc.dispatch(cp, event.getMessage());
+
+            Set<Player> recipients = event.getRecipients();
+
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                if (!cc.isHelpOp() && !cc.hasFocus(p.getName()))
+                    recipients.remove(p);
+                else if (cc.isHelpOp() && !cc.hasListener(p.getName()))
+                    recipients.remove(p);
+            }
+
             event.setCancelled(true);
         } else {
             event.getPlayer().sendMessage("§cYou do not have a channel focus.");
             event.setCancelled(true);
+
+            Set<Player> recipients = event.getRecipients();
+            recipients.clear();
         }
     }
 
@@ -84,7 +100,7 @@ public class PlayerListener implements Listener {
     {
         ChatPlayer cp = ISMain.getRegisteredPlayer(event.getPlayer());
 
-        ISMain.getChannelManager().disconnectFromAllChannels(cp);
+        ISMain.getChannelManager().onPlayerLogoff(cp);
         ISMain.unregisterPlayer(event.getPlayer());
         cp.save();
     }
@@ -94,7 +110,7 @@ public class PlayerListener implements Listener {
     {
         ChatPlayer cp = ISMain.getRegisteredPlayer(event.getPlayer());
 
-        ISMain.getChannelManager().disconnectFromAllChannels(cp);
+        ISMain.getChannelManager().onPlayerLogoff(cp);
         ISMain.unregisterPlayer(event.getPlayer());
         cp.save();
     }

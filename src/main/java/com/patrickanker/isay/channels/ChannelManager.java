@@ -11,7 +11,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 public class ChannelManager {
 
-    protected static HashMap<Channel, Boolean> channels = new HashMap();
+    protected static HashMap<Channel, Boolean> channels = new HashMap<Channel, Boolean>();
     protected Channel def = null;
     protected Channel helpop = null;
 
@@ -252,11 +252,9 @@ public class ChannelManager {
                 ISMain.getChannelManager().joinAllAvailableChannels(cp);
             } else {
                 List<String> channelNames = cp.getAutoJoinList();
-                Iterator<String> it = channelNames.listIterator();
 
-                while (it.hasNext()) {
-                    String channelName = (String) it.next();
-                    List l = matchChannel(channelName);
+                for (String channelName : channelNames) {
+                    List<Channel> l = matchChannel(channelName);
 
                     if ((l.size() == 1) && (cp.canConnect((Channel) l.get(0), ""))) {
                         ((ChatChannel) l.get(0)).connectWithoutBroadcast(cp.getPlayer().getName());
@@ -272,7 +270,12 @@ public class ChannelManager {
         }
     }
 
-    public void joinAllAvailableChannels(ChatPlayer cp)
+    public void onPlayerLogoff(ChatPlayer cp)
+    {
+        disconnectFromAllChannels(cp);
+    }
+
+    private void joinAllAvailableChannels(ChatPlayer cp)
     {
         for (Map.Entry channel : getMap().entrySet()) {
             if (cp.canConnect((Channel) channel.getKey(), "")) {
@@ -284,7 +287,7 @@ public class ChannelManager {
         getDefaultChannel().assignFocus(cp.getPlayer().getName(), true);
     }
 
-    public void disconnectFromAllChannels(ChatPlayer cp)
+    private void disconnectFromAllChannels(ChatPlayer cp)
     {
         for (Map.Entry entry : getMap().entrySet()) {
             ChatChannel c = (ChatChannel) entry.getKey();

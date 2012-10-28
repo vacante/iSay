@@ -6,7 +6,7 @@
     <name>iSay</name>
     <groupId>com.patrickanker</groupId>
     <artifactId>iSay</artifactId>
-    <version>0.2-Re2</version>
+    <version>0.2-Re3</version>
     <packaging>jar</packaging>
     <url>http://github.com/psanker/iSay</url>
 
@@ -183,11 +183,20 @@
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>2.2-beta-2</version>
-                <configuration>
-                    <descriptor>${basedir}/src/main/assembly/default.xml</descriptor>
-                    <finalName>iSay</finalName>
-                    <outputDirectory>${basedir}/latest</outputDirectory>
-                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>assembly</goal>
+                        </goals>
+
+                        <configuration>
+                            <descriptor>${basedir}/src/main/assembly/default.xml</descriptor>
+                            <finalName>iSay</finalName>
+                            <outputDirectory>${basedir}/latest</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             
             <plugin>

@@ -56,6 +56,7 @@ public class ISMain extends JavaPlugin {
         }
 
         unregisterAllPlayers();
+
         try {
             playerConfig.save(new File("plugins/iSay/players.yml"));
         } catch (IOException ex) {

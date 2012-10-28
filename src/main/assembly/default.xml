@@ -15,4 +15,11 @@
             <filtered>false</filtered>
         </file>
     </files>
+    <fileSets>
+        <fileSet>
+            <includes>
+                <include>LICENSE</include>
+            </includes>
+        </fileSet>
+    </fileSets>
 </assembly>
