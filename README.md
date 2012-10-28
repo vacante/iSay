@@ -1,12 +1,18 @@
 [Bukkit]: http://bukkit.org/
 [Maven]: http://maven.apache.org/
+[Installation]
 
 iSay
 ===========
 
 A better chat plugin for [Bukkit][Bukkit]
 
+General Information
+-----------
+
 __Latest version built with Bukkit version 1.3.2-R1.1-SNAPSHOT__
+
+How does one install iSay? Check out [the installation wiki page][Installation].
 
 Building
 -----------
