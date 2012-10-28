@@ -6,6 +6,8 @@ iSay
 
 A better chat plugin for [Bukkit][Bukkit]
 
+__Latest version built with Bukkit version 1.3.2-R1.1-SNAPSHOT__
+
 Building
 -----------
 
