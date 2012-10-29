@@ -28,6 +28,7 @@ public class ChatChannel extends Channel {
     protected boolean verbose = true;
     protected String ghostformat = "&8[&f" + this.name + "&8] $group&f $message";
     protected String password = "";
+    protected List<String> banlist = new LinkedList<String>();
     
     public static final String STATS_CURRENT_MESSAGE_COUNT = "chatchannel-message-current-message-count";
     public static final String STATS_MPM = "chatchannel-message-mps";
@@ -161,6 +162,23 @@ public class ChatChannel extends Channel {
         }
     }
 
+    public List<String> getListenerList()
+    {
+        List<String> l = new LinkedList<String>();
+
+        for (Map.Entry<String, Boolean> entry : listeners.entrySet()) {
+            if (!l.contains(entry.getKey()))
+                l.add(entry.getKey());
+        }
+
+        return l;
+    }
+
+    public HashMap<String, Boolean> getListenerMap()
+    {
+        return listeners;
+    }
+
     @Override
     public void load()
     {   
@@ -195,6 +213,10 @@ public class ChatChannel extends Channel {
         if (ISMain.getChannelConfig().contains(this.name + ".password")) {
             this.password = ISMain.getChannelConfig().getString(this.name + ".password");
         }
+
+        if (ISMain.getChannelConfig().contains(this.name + ".banlist")) {
+            this.banlist = ISMain.getChannelConfig().getStringList(this.name + ".banlist");
+        }
     }
 
     @Override
@@ -208,6 +230,7 @@ public class ChatChannel extends Channel {
         ISMain.getChannelConfig().set(this.name + ".promoted", this.promoted);
         ISMain.getChannelConfig().set(this.name + ".ghostformat", this.ghostformat);
         ISMain.getChannelConfig().set(this.name + ".password", this.password);
+        ISMain.getChannelConfig().set(this.name + ".banlist", this.banlist);
     }
 
     public void setDefault(boolean bool)
@@ -250,6 +273,18 @@ public class ChatChannel extends Channel {
         this.password = str;
     }
 
+    public void addBannedListener(String str)
+    {
+        if (!banlist.contains(str))
+            banlist.add(str);
+    }
+
+    public void removeBannedListener(String str)
+    {
+        if (banlist.contains(str))
+            banlist.remove(str);
+    }
+
     public boolean isDefault()
     {
         return this.def;
@@ -280,6 +315,11 @@ public class ChatChannel extends Channel {
         return this.promoted;
     }
 
+    public boolean isBanned(String str)
+    {
+        return banlist.contains(str);
+    }
+
     public String getGhostFormat()
     {
         return this.ghostformat;
@@ -288,22 +328,5 @@ public class ChatChannel extends Channel {
     public String getPassword()
     {
         return this.password;
-    }
-    
-    public List<String> getListenerList()
-    {
-        List<String> l = new LinkedList<String>();
-        
-        for (Map.Entry<String, Boolean> entry : listeners.entrySet()) {
-            if (!l.contains(entry.getKey()))
-                l.add(entry.getKey());
-        }
-        
-        return l;
-    }
-    
-    public HashMap<String, Boolean> getListenerMap()
-    {
-        return listeners;
     }
 }

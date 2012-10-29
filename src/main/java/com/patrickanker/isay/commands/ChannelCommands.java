@@ -250,8 +250,8 @@ public class ChannelCommands {
 
                 cs.sendMessage("§7Registered new channel §a" + channel);
 
-                if (!PermissionsManager.getHandler().hasPermission(cs.getName(), "isay.channel." + args[1] + ".admin")) {
-                    PermissionsManager.getHandler().givePermission(cs.getName(), "isay.channel." + args[1] + ".admin");
+                if (!PermissionsManager.getHandler().hasPermission(cs.getName(), "isay.channel." + args[1].toLowerCase() + ".admin")) {
+                    PermissionsManager.getHandler().givePermission(cs.getName(), "isay.channel." + args[1].toLowerCase() + ".admin");
                 }
             } else {
                 if (ISMain.getChannelManager().matchChannel(args[1]).size() == 1) {
@@ -273,16 +273,11 @@ public class ChannelCommands {
 
                 cs.sendMessage("§7Registered new channel \"§a" + channel.getName() + "§7\" with password \"§a" + concat + "§7\"");
 
-                if (!PermissionsManager.getHandler().hasPermission(cs.getName(), "isay.channel." + args[1] + ".admin")) {
-                    PermissionsManager.getHandler().givePermission(cs.getName(), "isay.channel." + args[1] + ".admin");
+                if (!PermissionsManager.getHandler().hasPermission(cs.getName(), "isay.channel." + args[1].toLowerCase() + ".admin")) {
+                    PermissionsManager.getHandler().givePermission(cs.getName(), "isay.channel." + args[1].toLowerCase() + ".admin");
                 }
             }
         } else if (args[0].equalsIgnoreCase("remove") || args[0].equalsIgnoreCase("-r")) {
-            if (!PermissionsManager.getHandler().hasPermission(cs.getName(), "isay.channel." + args[1] + ".admin")) {
-                cs.sendMessage("§cYou do not have authorisation to administer this channel.");
-                return;
-            }
-
             List<Channel> l = ISMain.getChannelManager().matchChannel(args[1]);
 
             if (l.isEmpty()) {
@@ -292,8 +287,13 @@ public class ChannelCommands {
             } else {
                 ChatChannel cc = (ChatChannel) l.get(0);
 
-                if (!PermissionsManager.getHandler().hasPermission(cs.getName(), "isay.channel." + cc.getName() + ".admin")) {
+                if (!PermissionsManager.getHandler().hasPermission(cs.getName(), "isay.channel." + cc.getName().toLowerCase() + ".admin")) {
                     cs.sendMessage("§cYou do not have authorisation to administer this channel.");
+                    return;
+                }
+
+                if (cc.isDefault()) {
+                    cs.sendMessage("§cYou cannot remove the default channel.");
                     return;
                 }
 
@@ -325,7 +325,7 @@ public class ChannelCommands {
             } else {
                 ChatChannel cc = (ChatChannel) l.get(0);
 
-                if (!PermissionsManager.getHandler().hasPermission(cs.getName(), "isay.channel." + cc.getName() + ".admin")) {
+                if (!PermissionsManager.getHandler().hasPermission(cs.getName(), "isay.channel." + cc.getName().toLowerCase() + ".admin")) {
                     cs.sendMessage("§cYou do not have authorisation to administer this channel.");
                     return;
                 }

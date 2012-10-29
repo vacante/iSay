@@ -96,16 +96,23 @@ public class ChatPlayer {
         if (!(channel instanceof ChatChannel)) {
             return false;
         }
+
+        ChatChannel cc = (ChatChannel) channel;
+
         if (PermissionsManager.getHandler().hasPermission(this.p.getName(), "isay.admin")) {
             return true;
         }
+
+        if (cc.isBanned(this.p.getName()))
+            return false;
+
         if (ISMain.getConfigData().getBoolean("disable-crossworld-chat")) {
-            return (PermissionsManager.getHandler().hasPermission(this.p.getWorld().getName(), this.p.getName(), "isay.channel." + channel.getName().toLowerCase() + ".join"))
-                    && (password.equals(((ChatChannel) channel).getPassword()));
+            return (PermissionsManager.getHandler().hasPermission(this.p.getWorld().getName(), this.p.getName(), "isay.channel." + cc.getName().toLowerCase() + ".join"))
+                    && (password.equals(cc.getPassword()));
         }
 
-        return (PermissionsManager.getHandler().hasPermission(this.p.getName(), "isay.channel." + channel.getName().toLowerCase() + ".join"))
-                && (password.equals(((ChatChannel) channel).getPassword()));
+        return (PermissionsManager.getHandler().hasPermission(this.p.getName(), "isay.channel." + cc.getName().toLowerCase() + ".join"))
+                && (password.equals(cc.getPassword()));
     }
 
     public boolean isMuted()
