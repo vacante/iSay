@@ -17,7 +17,7 @@ How does one install iSay? Check out [the installation wiki page][Installation].
 Building
 -----------
 
-I use maven to handle my dependencies.
+I use maven to handle my dependencies. Also, please build with JDK6.
 
 - Install [Maven 3][Maven]
 - Check out this repository.
