@@ -13,7 +13,22 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-  
+
+    <profiles>
+        <profile>
+            <id>jenkins</id>
+            <activation>
+                <property>
+                    <name>env.BUILD_NUMBER</name>
+                </property>
+            </activation>
+            <properties>
+                <project.build.number>${env.BUILD_NUMBER}</project.build.number>
+                <project.build.version>${project.version}-jnks${project.build.number}</project.build.version>
+            </properties>
+        </profile>
+    </profiles>
+
     <repositories>
         <repository>
             <id>bukkit-repo</id>
@@ -38,7 +53,7 @@
         <dependency>
             <groupId>org.bukkit</groupId>
             <artifactId>bukkit</artifactId>
-            <version>1.4.6-R0.1</version>
+            <version>1.4.7-R0.1</version>
             <type>jar</type>
         </dependency>
         
@@ -145,7 +160,7 @@
                     <replacements>
                         <replacement>
                             <token>MAVEN_VERSION</token>
-                            <value>${project.version}</value>
+                            <value>${project.build.version}</value>
                         </replacement>
                     </replacements>
                 </configuration>
