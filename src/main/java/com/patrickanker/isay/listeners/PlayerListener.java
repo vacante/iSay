@@ -109,6 +109,11 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onPlayerKick(PlayerKickEvent event)
     {
+        if (event.getReason().equalsIgnoreCase("disconnect.spam"))
+        {
+            event.setCancelled(true);
+            return;
+        }
         ChatPlayer cp = ISMain.getRegisteredPlayer(event.getPlayer());
 
         ISMain.getChannelManager().onPlayerLogoff(cp);
