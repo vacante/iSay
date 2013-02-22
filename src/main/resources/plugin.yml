@@ -1,7 +1,7 @@
 name: iSay
 version: MAVEN_VERSION
 main: com.patrickanker.isay.ISMain
-author: Patrick Anker
+author: Patrick Anker, TheCryoKnight, MikeMatrix, Vacante
 depend: [libpsanker]
 softdepend: [VoxelGuest]
   
